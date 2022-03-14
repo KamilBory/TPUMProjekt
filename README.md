@@ -3,7 +3,7 @@ Repository for a TPUM project.
 
 # Programming Technology Lab
 
-## Team
+## Team F
 
 | Name Surname (initials) | GUID                                     |
 | ----------------------- | ---------------------------------------- |
