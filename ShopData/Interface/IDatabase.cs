@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ShopData.Interface
+﻿namespace ShopData.Interface
 {
     public interface IDatabase
     {
-        IInventory GetInventory(int id);
-        bool DeleteInventory(int id);
-        int CreateInventory();
+        IRepo<Inventory> GetInventoryRepo();
+        IRepo<DeliveryOption> GetDeliveryOptionRepo();
+        IRepo<Offer> GetOfferRepo();
+        IRepo<OfferChoice> GetOfferChoiceRepo();
+        IRepo<Order> GetOrderRepo();
+        IRepo<ShopCart> GetShopCartRepo();
     }
 }
