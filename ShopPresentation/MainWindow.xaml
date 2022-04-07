@@ -1,0 +1,30 @@
+﻿<Window x:Class="ShopPresentation.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ShopPresentation"
+        mc:Ignorable="d"
+        Title="ShopOffer" Height="600" Width="900" ResizeMode="NoResize">
+    <Border Background="White">
+        <Grid Margin="-2,0,2,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="2B Electronics" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,0,0" Foreground="Black" FontSize="25"/>
+
+            <Button Content="Cart" Height="40" Width="80" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0" Background="Aqua"
+                    Foreground="Black" FontSize="18"/>
+
+            <Button Content="My Orders" Height="40" Width="90" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,120,0" Background="Aqua"
+                    Foreground="Black" FontSize="18"/>
+
+            <ScrollViewer Grid.Row="1">
+                <StackPanel Name="OfferPanel"/>
+            </ScrollViewer>
+
+        </Grid>
+    </Border>
+</Window>
