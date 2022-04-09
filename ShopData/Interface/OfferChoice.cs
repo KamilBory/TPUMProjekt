@@ -2,7 +2,7 @@
 {
     public struct OfferChoice
     {
-        int offerId;
-        int count;
+        public int offerId;
+        public int count;
     }
 }

@@ -2,8 +2,8 @@
 {
     public struct DeliveryOption
     {
-        string name;
-        int price;
-        InventorySize maxSize;
+        public string name;
+        public int price;
+        public InventorySize maxSize;
     }
 }

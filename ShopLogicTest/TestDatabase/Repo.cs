@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using ShopData.Interface;
 
-namespace ShopData.MemoryModel
+namespace ShopLogicTest.TestDatabase
 {
     class Repo<T> : IRepo<T> where T : struct
     {
@@ -9,6 +9,8 @@ namespace ShopData.MemoryModel
         private static int NewID() { return ++id; }
 
         private Dictionary<int, T> _dInventory = new Dictionary<int, T>();
+
+        public void Init(Dictionary<int, T> dict) { _dInventory = dict; }
 
         public T? Get(int id)
         {

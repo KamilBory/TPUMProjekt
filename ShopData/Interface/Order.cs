@@ -5,9 +5,10 @@ namespace ShopData.Interface
 {
     public struct Order
     {
-        private HashSet<int> offerChoiceIds;
-        private int deliveryOptionId;
-        private DateTime creationTime;
-        private OrderState state;
+        public int clientId;
+        public HashSet<int> offerChoiceIds;
+        public int deliveryOptionId;
+        public DateTime creationTime;
+        public OrderState state;
     }
 }

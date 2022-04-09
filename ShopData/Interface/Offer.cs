@@ -2,7 +2,7 @@
 {
     public struct Offer
     {
-        private int inventoryId;
-        private int sellPrice;
+        public int inventoryId;
+        public int sellPrice;
     }
 }
