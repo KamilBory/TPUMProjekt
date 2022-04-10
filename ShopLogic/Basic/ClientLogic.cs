@@ -74,14 +74,83 @@ namespace ShopLogic.Basic
             return deliveryOptions.ToArray();
         }
 
+        public DeliveryOption[] GetDeliveryOptionsForShopCart(int shopCartId)
+        {
+            var shopCartRepo = _database.GetShopCartRepo();
+            var offerRepo = _database.GetOfferRepo();
+            var offerChoiceRepo = _database.GetOfferChoiceRepo();
+            var inventoryRepo = _database.GetInventoryRepo();
+            var deliveryOptionRepo = _database.GetDeliveryOptionRepo();
+
+            var dbShopCart = shopCartRepo.Get(shopCartId) ?? throw new Exception("Invalid shop cart id");
+
+            var deliveryOptions = new List<DeliveryOption>();
+            var dbDeliveryOptions = deliveryOptionRepo.List();
+
+            foreach (var dbDeliveryOption in dbDeliveryOptions)
+            {
+                bool deliveryOptionAvailable = true;
+
+                foreach (var offerChoiceId in dbShopCart.offerChoiceIds)
+                {
+                    var dbOfferChoice = offerChoiceRepo.Get(offerChoiceId) ?? throw new Exception("Invalid offer choice id");
+                    var dbOffer = offerRepo.Get(dbOfferChoice.offerId) ?? throw new Exception("Invalid offer id");
+                    var dbInventory = inventoryRepo.Get(dbOffer.inventoryId) ?? throw new Exception("Invalid inventory id");
+
+                    deliveryOptionAvailable &= Utilities.DeliveryOptionAvailableForInventory(dbDeliveryOption.Value, dbInventory);
+
+                    if (!deliveryOptionAvailable) { break; }
+                }
+
+                if (deliveryOptionAvailable)
+                {
+                    deliveryOptions.Add(Utilities.Convert(dbDeliveryOption.Value, dbDeliveryOption.Key));
+                }
+            }
+
+            return deliveryOptions.ToArray();
+        }
+
+        public int CreateShoppingCart()
+        {
+            var shopCartRepo = _database.GetShopCartRepo();
+            var newDbShopCart = new Data.ShopCart { clientId = _currentClientId, offerChoiceIds = new HashSet<int>() };
+            return shopCartRepo.Create(newDbShopCart);
+        }
+
+        public void DeleteShoppingCart(int shopCartId)
+        {
+            var shopCartRepo = _database.GetShopCartRepo();
+            if (!shopCartRepo.Delete(shopCartId)) { throw new Exception("Failed to delete shop cart"); }
+        }
+
         public void AddOfferToShoppingCart(int shopCartId, int offerId, int count)
         {
+            if (count <= 0) throw new Exception("Invalid count parameter");
+
             var offerRepo = _database.GetOfferRepo();
             var offerChoiceRepo = _database.GetOfferChoiceRepo();
             var shopCartRepo = _database.GetShopCartRepo();
+            var inventoryRepo = _database.GetInventoryRepo();
 
             var dbOffer = offerRepo.Get(offerId) ?? throw new Exception("Invalid offer id");
             var dbShopCart = shopCartRepo.Get(shopCartId) ?? throw new Exception("Invalid shop cart id");
+            var dbInventory = inventoryRepo.Get(dbOffer.inventoryId) ?? throw new Exception("Invalid inventory id");
+
+            foreach (var dbOfferChoiceId in dbShopCart.offerChoiceIds)
+            {
+                var dbOfferChoice = offerChoiceRepo.Get(dbOfferChoiceId) ?? throw new Exception("Invalid offer choice id");
+
+                if (dbOfferChoice.offerId != offerId) { continue; }
+
+                dbOfferChoice.count += count;
+
+                if (dbOfferChoice.count > dbInventory.count) { throw new Exception("Tried to add more than available"); }
+
+                if (!offerChoiceRepo.Update(dbOfferChoiceId, dbOfferChoice)) { throw new Exception("Failed to update offer choice"); }
+
+                return;
+            }
 
             var newDbOfferChoice = new Data.OfferChoice
             {
@@ -89,11 +158,47 @@ namespace ShopLogic.Basic
                 count = count
             };
 
+            if (newDbOfferChoice.count > dbInventory.count) { throw new Exception("Tried to add more than available"); }
+
             var newDbOfferChoiceId = offerChoiceRepo.Create(newDbOfferChoice);
 
             dbShopCart.offerChoiceIds.Add(newDbOfferChoiceId);
 
             if (!shopCartRepo.Update(shopCartId, dbShopCart)) { throw new Exception("Failed to update shop cart"); }
+        }
+
+        public void DeleteOfferFromShoppingCart(int shopCartId, int offerId, int count)
+        {
+            if (count < 0) throw new Exception("Invalid count parameter");
+
+            var shopCartRepo = _database.GetShopCartRepo();
+            var offerChoiceRepo = _database.GetOfferChoiceRepo();
+
+            var dbShopCart = shopCartRepo.Get(shopCartId) ?? throw new Exception("Invalid shop cart id");
+
+            foreach (var dbOfferChoiceId in dbShopCart.offerChoiceIds)
+            {
+                var dbOfferChoice = offerChoiceRepo.Get(dbOfferChoiceId) ?? throw new Exception("Invalid offer choice id");
+
+                if (dbOfferChoice.offerId != offerId) { continue; }
+
+                dbOfferChoice.count -= count;
+
+                if (dbOfferChoice.count <= 0 || count == 0)
+                {
+                    if (!offerChoiceRepo.Delete(dbOfferChoiceId)) { throw new Exception("Failed to delete offer choice"); }
+                    dbShopCart.offerChoiceIds.Remove(dbOfferChoiceId);
+                    if (!shopCartRepo.Update(shopCartId, dbShopCart)) { throw new Exception("Failed to update shop cart"); }
+                }
+                else
+                {
+                    if (!offerChoiceRepo.Update(dbOfferChoiceId, dbOfferChoice)) { throw new Exception("Failed to update offer choice"); }
+                }
+
+                return;
+            }
+
+            throw new Exception("Invalid offer id");
         }
 
         public Order CreateOrderFromShoppingCart(int shopCartId, int deliveryOptionId)
@@ -116,6 +221,8 @@ namespace ShopLogic.Basic
             dbShopCart.offerChoiceIds.CopyTo(offerChoicesIds);
 
             var newDbOrderId = orderRepo.Create(newDbOrder);
+
+            shopCartRepo.Delete(shopCartId);
 
             return new Order
             {

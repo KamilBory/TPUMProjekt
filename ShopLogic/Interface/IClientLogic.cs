@@ -10,15 +10,23 @@
 
         DeliveryOption[] GetDeliveryOptionsForOffer(int offerId);
 
+        DeliveryOption[] GetDeliveryOptionsForShopCart(int offerId);
+
+        DeliveryOption GetDeliveryOptionById(int deliveryOptionId);
+
+        int CreateShoppingCart();
+
+        void DeleteShoppingCart(int shopCartId);
+
         void AddOfferToShoppingCart(int shopCartId, int offerId, int count);
+
+        void DeleteOfferFromShoppingCart(int shopCartId, int offerId, int count);
 
         Order CreateOrderFromShoppingCart(int shopCartId, int deliveryOptionId);
 
         Order[] GetAllOrders();
 
         Order GetOrderById(int orderId);
-
-        DeliveryOption GetDeliveryOptionById(int deliveryOptionId);
 
         ShopCart.OfferChoice GetOfferChoiceById(int offerChoiceId);
 
