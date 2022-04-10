@@ -142,6 +142,14 @@ namespace ShopLogicTest
         }
 
         [TestMethod]
+        public void GetAllShopCarts_HappyPath()
+        {
+            var shopCarts = _clientLogic.GetAllShopCarts();
+
+            Assert.AreEqual(1, shopCarts.Length);
+        }
+
+        [TestMethod]
         public void CreateShoppingCart_HappyPath()
         {
             _clientLogic.CreateShoppingCart();
@@ -156,7 +164,7 @@ namespace ShopLogicTest
         [TestMethod]
         public void DeleteShoppingCart_InvalidId()
         {
-            Assert.ThrowsException<Exception>(delegate { _clientLogic.DeleteShoppingCart(2); }, "Invalid shop cart id");
+            Assert.ThrowsException<Exception>(delegate { _clientLogic.DeleteShoppingCart(3); }, "Invalid shop cart id");
         }
 
         [TestMethod]
@@ -169,7 +177,7 @@ namespace ShopLogicTest
         [TestMethod]
         public void AddOfferToShoppingCart_InvalidShopCartId()
         {
-            Assert.ThrowsException<Exception>(delegate { _clientLogic.AddOfferToShoppingCart(2, 1, 1); }, "Invalid shop cart id");
+            Assert.ThrowsException<Exception>(delegate { _clientLogic.AddOfferToShoppingCart(3, 1, 1); }, "Invalid shop cart id");
         }
 
         [TestMethod]
@@ -242,7 +250,7 @@ namespace ShopLogicTest
             var shopCartId = _clientLogic.CreateShoppingCart();
             _clientLogic.AddOfferToShoppingCart(shopCartId, 1, 1);
             _clientLogic.AddOfferToShoppingCart(shopCartId, 2, 2);
-            
+
             var deliveryOptions = _clientLogic.GetDeliveryOptionsForShopCart(shopCartId);
 
             Assert.AreEqual(1, deliveryOptions.Length);
@@ -251,52 +259,76 @@ namespace ShopLogicTest
             Assert.AreEqual("Self-pickup", deliveryOptions[0].name);
             Assert.AreEqual(0, deliveryOptions[0].price);
 
+            var order = _clientLogic.CreateOrderFromShoppingCart(shopCartId, deliveryOptions[0].id);
 
+            Assert.AreEqual(order.deliveryOptionId, deliveryOptions[0].id);
         }
 
         [TestMethod]
         public void CreateOrderFromShoppingCart_InvalidShopCartId()
         {
+            Assert.ThrowsException<Exception>(delegate { _clientLogic.CreateOrderFromShoppingCart(3, 1); }, "Invalid shop cart id");
         }
 
         [TestMethod]
         public void CreateOrderFromShoppingCart_InvalidDeliveryOptionId()
         {
+            Assert.ThrowsException<Exception>(delegate { _clientLogic.CreateOrderFromShoppingCart(1, 3); }, "Invalid delivery option id");
         }
 
         [TestMethod]
         public void GetAllOrders_HappyPath()
         {
+            CreateOrderFromShoppingCart_HappyPath();
+
+            var orders = _clientLogic.GetAllOrders();
+
+            Assert.AreEqual(1, orders.Length);
         }
 
         [TestMethod]
         public void GetOrderById_HappyPath()
         {
+            CreateOrderFromShoppingCart_HappyPath();
+            var orderId = _clientLogic.GetAllOrders()[0].id;
+
+            _clientLogic.GetOrderById(orderId);
         }
 
         [TestMethod]
         public void GetOrderById_InvalidId()
         {
+            Assert.ThrowsException<Exception>(delegate { _clientLogic.GetOrderById(2); }, "Invalid order id");
         }
 
         [TestMethod]
         public void GetOfferChoiceById_HappyPath()
         {
+            AddOfferToShoppingCart_HappyPath();
+
+            var shopCarts = _clientLogic.GetAllShopCarts();
+            var i = shopCarts.Length - 1;
+            var shopCart = shopCarts[i];
+
+            var offerChoice = _clientLogic.GetOfferChoiceById(shopCart.offerChoiceIds[0]);
         }
 
         [TestMethod]
         public void GetOfferChoiceById_InvalidId()
         {
+            Assert.ThrowsException<Exception>(delegate { _clientLogic.GetOfferChoiceById(69); }, "Invalid offer choice id");
         }
 
         [TestMethod]
         public void GetShopCartById_HappyPath()
         {
+            _clientLogic.GetShopCartById(1);
         }
 
         [TestMethod]
         public void GetShopCartById_InvalidId()
         {
+            Assert.ThrowsException<Exception>(delegate { _clientLogic.GetShopCartById(420); }, "Invalid shop cart id");
         }
 
         [TestInitialize]
@@ -339,7 +371,8 @@ namespace ShopLogicTest
             {
                 var shopCarts = new Dictionary<int, Data.ShopCart>();
 
-                shopCarts.Add(1, new Data.ShopCart { clientId = 1 });
+                shopCarts.Add(1, new Data.ShopCart { clientId = 1, offerChoiceIds = new HashSet<int>() });
+                shopCarts.Add(2, new Data.ShopCart { clientId = 2, offerChoiceIds = new HashSet<int>() });
 
                 testDatabase.SetShopCartRepo(shopCarts);
             }

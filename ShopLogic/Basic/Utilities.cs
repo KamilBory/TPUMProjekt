@@ -50,6 +50,20 @@ namespace ShopLogic.Basic
             inOut = filteredValuesList.ToArray();
         }
 
+        public static void Filter(ref KeyValuePair<int, Data.ShopCart>[] inOut, int clientId)
+        {
+            var filteredValuesList = new List<KeyValuePair<int, Data.ShopCart>>();
+
+            foreach (var pair in inOut)
+            {
+                if (pair.Value.clientId != clientId) { continue; }
+
+                filteredValuesList.Add(pair);
+            }
+
+            inOut = filteredValuesList.ToArray();
+        }
+
         public static Order.State Convert(Data.OrderState input)
         {
             switch (input)
@@ -160,6 +174,13 @@ namespace ShopLogic.Basic
                 id = id,
                 offerChoiceIds = offerChoiceIds
             };
+        }
+
+        public static ShopCart[] Convert(KeyValuePair<int, Data.ShopCart>[] input)
+        {
+            var output = new ShopCart[input.Length];
+            for (int i = 0; i < input.Length; ++i) { output[i] = Convert(input[i].Value, input[i].Key); }
+            return output;
         }
     }
 }

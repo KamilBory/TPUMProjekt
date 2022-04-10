@@ -111,6 +111,16 @@ namespace ShopLogic.Basic
             return deliveryOptions.ToArray();
         }
 
+        public ShopCart[] GetAllShopCarts()
+        {
+            var shopCartRepo = _database.GetShopCartRepo();
+
+            var dbShopCarts = shopCartRepo.List();
+            Utilities.Filter(ref dbShopCarts, _currentClientId);
+
+            return Utilities.Convert(dbShopCarts);
+        }
+
         public int CreateShoppingCart()
         {
             var shopCartRepo = _database.GetShopCartRepo();
@@ -205,8 +215,10 @@ namespace ShopLogic.Basic
         {
             var shopCartRepo = _database.GetShopCartRepo();
             var orderRepo = _database.GetOrderRepo();
+            var deliveryOptionRepo = _database.GetDeliveryOptionRepo();
 
             var dbShopCart = shopCartRepo.Get(shopCartId) ?? throw new Exception("Invalid shop cart id");
+            var dbDeliveryOption = deliveryOptionRepo.Get(deliveryOptionId) ?? throw new Exception("Invalid delivery option id");
 
             var newDbOrder = new Data.Order
             {
