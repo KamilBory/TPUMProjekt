@@ -2,6 +2,7 @@
 {
     public interface IDatabase
     {
+        IRepo<Client> GetClientRepo();
         IRepo<Inventory> GetInventoryRepo();
         IRepo<DeliveryOption> GetDeliveryOptionRepo();
         IRepo<Offer> GetOfferRepo();

@@ -11,6 +11,6 @@ namespace ShopData.Interface
         bool Update(int id, T obj);
         int Create(T obj);
         int[] ListIds();
-        T[] List();
+        KeyValuePair<int, T>[] List();
     }
 }

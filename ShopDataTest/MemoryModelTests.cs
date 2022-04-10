@@ -80,8 +80,8 @@ namespace ShopDataTest
             {
                 var invList = repo.List();
 
-                Assert.AreEqual(invList[0].count, testCount + 1);
-                Assert.AreEqual(invList[1].count, testCount + 2);
+                Assert.AreEqual(invList[0].Value.count, testCount + 1);
+                Assert.AreEqual(invList[1].Value.count, testCount + 2);
             }
         }
     }

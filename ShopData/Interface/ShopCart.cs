@@ -4,6 +4,7 @@ namespace ShopData.Interface
 {
     public struct ShopCart
     {
-        HashSet<int> offerChoiceIds;
+        public int clientId;
+        public HashSet<int> offerChoiceIds;
     }
 }
