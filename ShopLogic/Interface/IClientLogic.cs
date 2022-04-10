@@ -14,6 +14,8 @@
 
         DeliveryOption GetDeliveryOptionById(int deliveryOptionId);
 
+        ShopCart[] GetAllShopCarts();
+
         int CreateShoppingCart();
 
         void DeleteShoppingCart(int shopCartId);
