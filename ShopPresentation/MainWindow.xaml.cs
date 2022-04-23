@@ -21,12 +21,12 @@ namespace ShopPresentation
     public partial class MainWindow : Window
     {
         private int offerCount = 20;
+        
 
         public MainWindow()
         {
             InitializeComponent();
             UpdateList(OfferPanel);
-            this.Hide();
         }
 
         public void UpdateList(StackPanel stackPanel)

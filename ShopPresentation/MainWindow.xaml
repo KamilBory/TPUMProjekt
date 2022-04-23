@@ -6,8 +6,7 @@
         xmlns:local="clr-namespace:ShopPresentation"
         mc:Ignorable="d"
         Title="ShopOffer" Height="600" Width="900" ResizeMode="NoResize">
-	
-	<Border Background="White">
+    <Border Background="White">
         <Grid Margin="-2,0,2,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="70"/>

@@ -6,41 +6,7 @@
         xmlns:local="clr-namespace:ShopPresentation.View"
         mc:Ignorable="d"
         Title="Cart" Height="450" Width="800">
-	<Border Background="White">
-		<Grid Margin="-2,0,2,0">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="70"/>
-				<RowDefinition/>
-			</Grid.RowDefinitions>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="400"/>
-				<ColumnDefinition/>
-			</Grid.ColumnDefinitions>
-
-			<TextBlock Text="2B Electronics" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,0,0" Foreground="Black" FontSize="25"/>
-
-			<ScrollViewer Grid.Row="1" Height="320" Margin="0,0,0,60">
-				<StackPanel Name="CurrentPanel"/>
-			</ScrollViewer>
-
-			<TextBlock Grid.Row="1" Text="Price" TextAlignment="Center" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,5"/>
-
-			<StackPanel Grid.Row="1" Grid.Column="1">
-				<StackPanel Height="300">
-					<TextBlock Text="Payment" TextAlignment="Center" FontSize="25"/>
-					<CheckBox Content="Cash" IsChecked="True" FontSize="20"/>
-					<CheckBox Content="Credit Card" FontSize="20"/>
-					<CheckBox Content="Bank tranfser" FontSize="20"/>
-					<TextBlock Text="Delivery" TextAlignment="Center" FontSize="25" Margin="0, 30, 0, 0"/>
-					<CheckBox Content="Self-pickup" IsChecked="True" FontSize="20"/>
-					<CheckBox Content="To parcel locker" FontSize="20"/>
-					<CheckBox Content="Courier" FontSize="20"/>
-				</StackPanel>
-
-				<Button Content="Pay" Grid.Column="1" Height="40" Width="80" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,0" Background="Aqua"
-                    Foreground="Black" FontSize="18"/>
-			</StackPanel>
-
-		</Grid>
-	</Border>
+    <Grid>
+        
+    </Grid>
 </Window>
