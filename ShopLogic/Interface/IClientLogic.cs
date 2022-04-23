@@ -1,4 +1,6 @@
-﻿namespace ShopLogic.Interface
+﻿using System;
+
+namespace ShopLogic.Interface
 {
     public interface IClientLogic
     {
@@ -37,5 +39,9 @@
         Client Get();
 
         void Update(Client client);
+
+        // reactive part
+
+        IDisposable SubscribeForOfferUpdate(IObserver<Offer> observer);
     }
 }
