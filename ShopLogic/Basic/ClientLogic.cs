@@ -295,5 +295,47 @@ namespace ShopLogic.Basic
             var clientRepo = _database.GetClientRepo();
             if (!clientRepo.Update(_currentClientId, Utilities.Convert(client))) { throw new Exception("Failed to update client"); }
         }
+
+        // reactive part
+
+        private List<IObserver<Offer>> offerObservers = new List<IObserver<Offer>>();
+
+        internal class Unsubscriber<Offer> : IDisposable
+        {
+            private List<IObserver<Offer>> _observers;
+            private IObserver<Offer> _observer;
+
+            internal Unsubscriber(List<IObserver<Offer>> observers, IObserver<Offer> observer)
+            {
+                _observers = observers;
+                _observer = observer;
+            }
+
+            public void Dispose()
+            {
+                if (_observers.Contains(_observer))
+                {
+                    _observers.Remove(_observer);
+                }
+            }
+        }
+
+        public IDisposable SubscribeForOfferUpdate(IObserver<Offer> observer)
+        {
+            if (!offerObservers.Contains(observer))
+            {
+                offerObservers.Add(observer);
+            }
+
+            return new Unsubscriber<Offer>(offerObservers, observer);
+        }
+
+        private void UpdateOffer(Offer offer)
+        {
+            foreach (var observer in offerObservers)
+            {
+                observer.OnNext(offer);
+            }
+        }
     }
 }
