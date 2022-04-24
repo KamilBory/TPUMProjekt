@@ -10,6 +10,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopLogic", "ShopLogic\ShopLogic.csproj", "{05CCD094-7309-4C33-95C5-3428EEEF25B6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopLogicTest", "ShopLogicTest\ShopLogicTest.csproj", "{8BB3CEEB-948F-44AE-B20C-53B5590F542A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopPresentation", "ShopPresentation\ShopPresentation.csproj", "{D181A681-0EC5-4EDE-99E1-3A3A7D51EC5C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +34,10 @@ Global
 		{8BB3CEEB-948F-44AE-B20C-53B5590F542A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BB3CEEB-948F-44AE-B20C-53B5590F542A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BB3CEEB-948F-44AE-B20C-53B5590F542A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D181A681-0EC5-4EDE-99E1-3A3A7D51EC5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D181A681-0EC5-4EDE-99E1-3A3A7D51EC5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D181A681-0EC5-4EDE-99E1-3A3A7D51EC5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D181A681-0EC5-4EDE-99E1-3A3A7D51EC5C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
