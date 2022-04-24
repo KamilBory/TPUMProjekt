@@ -4,9 +4,27 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Logic = ShopLogic.Interface;
 
 namespace ShopPresentation.ViewModel
 {
+    public struct OfferItem
+    {
+        public int id;
+        public string name;
+        public string description;
+        public int availableCount;
+        public int sellPrice;
+
+        public void SetParams(string n, string des, int aCount, int sPrice)
+        {
+            name = n;
+            description = des;
+            availableCount = aCount;
+            sellPrice = sPrice;
+        }
+    }
+
     public class Offer
     {
         private Grid offer = new Grid();
@@ -15,17 +33,17 @@ namespace ShopPresentation.ViewModel
         private TextBlock price = new TextBlock();
         private Button add = new Button();
 
-        public Offer(int index) // Pass the product in the constructor as well ???
+        public Offer(OfferItem item)
         {
             // Swap with getters of the product
-            name.Name = "name" + index.ToString();
-            name.Text = "Title" + index.ToString();
-            description.Name = "description" + index.ToString();
-            description.Text = "Description";
-            price.Name = "price" + index.ToString();
-            price.Text = "Price";
+            name.Name = "name" + item.id.ToString();
+            name.Text = item.name;
+            description.Name = "description" + item.id.ToString();
+            description.Text = item.description;
+            price.Name = "price" + item.id.ToString();
+            price.Text = item.sellPrice.ToString();
 
-            add.Name = "Button" + index.ToString();
+            add.Name = "Button" + item.id.ToString();
             add.Content = "Add to Cart";
 
             name.Width = 100; 

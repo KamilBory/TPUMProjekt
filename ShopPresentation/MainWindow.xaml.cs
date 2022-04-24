@@ -20,23 +20,9 @@ namespace ShopPresentation
     /// </summary>
     public partial class MainWindow : Window
     {
-        private int offerCount = 20;
-        
-
         public MainWindow()
         {
             InitializeComponent();
-            UpdateList(OfferPanel);
-        }
-
-        public void UpdateList(StackPanel stackPanel)
-        {
-            ViewModel.OfferList offerList = new ViewModel.OfferList(stackPanel);
-            for(int i = 0; i < offerCount; i++)
-            {
-                offerList.AddList(new ViewModel.Offer(i));
-            }
-            offerList.RefreshList();
         }
     }
 }

@@ -4,8 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ShopPresentation"
+        xmlns:vm="clr-namespace:ShopPresentation.ViewModel"
         mc:Ignorable="d"
         Title="ShopOffer" Height="600" Width="900" ResizeMode="NoResize">
+
+    <Window.Resources>
+        <vm:MainWindowViewModel x:Key="mainVM"/>
+    </Window.Resources>
+
     <Border Background="White">
         <Grid Margin="-2,0,2,0">
             <Grid.RowDefinitions>
@@ -15,13 +21,24 @@
 
             <TextBlock Text="2B Electronics" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,0,0" Foreground="Black" FontSize="25"/>
 
-            <Button Content="Cart" Height="40" Width="80" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0" Background="Aqua"
-                    Foreground="Black" FontSize="18"/>
+            <Button x:Name="CartBtn" Content="Cart" Height="40" Width="80" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0" Background="Aqua"
+                    Foreground="Black" FontSize="18" Click="ShowCart"/>
 
-            <Button Content="My Orders" Height="40" Width="90" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,120,0" Background="Aqua"
-                    Foreground="Black" FontSize="18"/>
+            <Button x:Name="OrdersBtn" Content="My Orders" Height="40" Width="90" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,120,0" Background="Aqua"
+                    Foreground="Black" FontSize="18" Click="ShowOrders"/>
+            
+            <Button x:Name="MainBtn" Content="" Height="40" Width="90" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,120,0" Background="Aqua"
+                    Foreground="Black" FontSize="18" Click="ShowShopFront"/>
 
-            <ScrollViewer Grid.Row="1">
+            <ScrollViewer Grid.Row="1" Visibility="{Binding showShopFront}">
+                <StackPanel Name="ShopFrontPanel" Binding.SourceUpdated="stackPanel"/>
+            </ScrollViewer>
+
+            <ScrollViewer Grid.Row="1" Visibility="{Binding showCart}">
+                <StackPanel Name="CartPanel"/>
+            </ScrollViewer>
+
+            <ScrollViewer Grid.Row="1" Visibility="{Binding showOrders}">
                 <StackPanel Name="OfferPanel"/>
             </ScrollViewer>
 

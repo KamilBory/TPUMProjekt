@@ -10,4 +10,9 @@
     <Folder Include="View\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ShopData\ShopData.csproj" />
+    <ProjectReference Include="..\ShopLogic\ShopLogic.csproj" />
+  </ItemGroup>
+
 </Project>

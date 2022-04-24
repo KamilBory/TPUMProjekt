@@ -4,6 +4,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Logic = ShopLogic.Interface;
 
 namespace ShopPresentation.ViewModel
 {
@@ -11,6 +12,7 @@ namespace ShopPresentation.ViewModel
     {
         private List<Offer> offers;
         private StackPanel stackPanel;
+        private Logic.ILogic logic;
 
         public OfferList(StackPanel stackP)
         {
