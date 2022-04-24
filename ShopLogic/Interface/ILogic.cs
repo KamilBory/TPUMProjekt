@@ -8,6 +8,8 @@
 
         int RegisterClient(string name, string surname, string password);
 
+        void Shutdown();
+
         // potential extension
         // IOwnerLogic GetOwnerLogic();
     }

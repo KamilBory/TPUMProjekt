@@ -8,8 +8,9 @@ namespace ShopLogic.Basic
 {
     public class ClientLogic : IClientLogic
     {
-        readonly int _currentClientId;
-        Data.IDatabase _database;
+        private readonly int _currentClientId;
+        private Data.IDatabase _database;
+        private List<IObserver<Offer>> offerObservers = new List<IObserver<Offer>>();
 
         public ClientLogic(int clientId, string password, Data.IDatabase database)
         {
@@ -18,9 +19,12 @@ namespace ShopLogic.Basic
 
             var clientRepo = _database.GetClientRepo();
 
-            var dbClient = clientRepo.Get(_currentClientId) ?? throw new Exception("Invalid client id");
+            Conc.LockExec(new object[] { clientRepo }, () =>
+            {
+                var dbClient = clientRepo.Get(_currentClientId) ?? throw new Exception("Invalid client id");
 
-            if (dbClient.password != password) { throw new Exception("Invalid password"); }
+                if (dbClient.password != password) { throw new Exception("Invalid password"); }
+            });
         }
 
         public Offer[] GetAllOffers()
@@ -28,16 +32,19 @@ namespace ShopLogic.Basic
             var offerRepo = _database.GetOfferRepo();
             var inventoryRepo = _database.GetInventoryRepo();
 
-            var dbOffers = offerRepo.List();
-            var offers = new Offer[dbOffers.Length];
-
-            for (int i = 0; i < dbOffers.Length; ++i)
+            return Conc.LockExec(new object[] { inventoryRepo, offerRepo }, () =>
             {
-                var dbInventory = inventoryRepo.Get(dbOffers[i].Value.inventoryId) ?? throw new Exception("Invalid inventory id");
-                offers[i] = Utilities.Convert(dbOffers[i].Value, dbInventory, dbOffers[i].Key);
-            }
+                var dbOffers = offerRepo.List();
+                var offers = new Offer[dbOffers.Length];
 
-            return offers;
+                for (int i = 0; i < dbOffers.Length; ++i)
+                {
+                    var dbInventory = inventoryRepo.Get(dbOffers[i].Value.inventoryId) ?? throw new Exception("Invalid inventory id");
+                    offers[i] = Utilities.Convert(dbOffers[i].Value, dbInventory, dbOffers[i].Key);
+                }
+
+                return offers;
+            });
         }
 
         public Offer GetOfferById(int offerId)
@@ -45,10 +52,13 @@ namespace ShopLogic.Basic
             var offerRepo = _database.GetOfferRepo();
             var inventoryRepo = _database.GetInventoryRepo();
 
-            var dbOffer = offerRepo.Get(offerId) ?? throw new Exception("Invalid offer id");
-            var dbInventory = inventoryRepo.Get(dbOffer.inventoryId) ?? throw new Exception("Invalid inventory id");
+            return Conc.LockExec(new object[] { inventoryRepo, offerRepo }, () =>
+            {
+                var dbOffer = offerRepo.Get(offerId) ?? throw new Exception("Invalid offer id");
+                var dbInventory = inventoryRepo.Get(dbOffer.inventoryId) ?? throw new Exception("Invalid inventory id");
 
-            return Utilities.Convert(dbOffer, dbInventory, offerId);
+                return Utilities.Convert(dbOffer, dbInventory, offerId);
+            });
         }
 
         public DeliveryOption[] GetDeliveryOptionsForOffer(int offerId)
@@ -57,21 +67,24 @@ namespace ShopLogic.Basic
             var inventoryRepo = _database.GetInventoryRepo();
             var deliveryOptionRepo = _database.GetDeliveryOptionRepo();
 
-            var deliveryOptions = new List<DeliveryOption>();
-
-            var dbDeliveryOptions = deliveryOptionRepo.List();
-            var dbOffer = offerRepo.Get(offerId) ?? throw new Exception("Invalid offer id");
-            var dbInventory = inventoryRepo.Get(dbOffer.inventoryId) ?? throw new Exception("Invalid inventory id");
-
-            foreach (var dbDeliveryOption in dbDeliveryOptions)
+            return Conc.LockExec(new object[] { inventoryRepo, deliveryOptionRepo, offerRepo }, () =>
             {
-                if (Utilities.DeliveryOptionAvailableForInventory(dbDeliveryOption.Value, dbInventory))
-                {
-                    deliveryOptions.Add(Utilities.Convert(dbDeliveryOption.Value, dbDeliveryOption.Key));
-                }
-            }
+                var deliveryOptions = new List<DeliveryOption>();
 
-            return deliveryOptions.ToArray();
+                var dbDeliveryOptions = deliveryOptionRepo.List();
+                var dbOffer = offerRepo.Get(offerId) ?? throw new Exception("Invalid offer id");
+                var dbInventory = inventoryRepo.Get(dbOffer.inventoryId) ?? throw new Exception("Invalid inventory id");
+
+                foreach (var dbDeliveryOption in dbDeliveryOptions)
+                {
+                    if (Utilities.DeliveryOptionAvailableForInventory(dbDeliveryOption.Value, dbInventory))
+                    {
+                        deliveryOptions.Add(Utilities.Convert(dbDeliveryOption.Value, dbDeliveryOption.Key));
+                    }
+                }
+
+                return deliveryOptions.ToArray();
+            });
         }
 
         public DeliveryOption[] GetDeliveryOptionsForShopCart(int shopCartId)
@@ -82,56 +95,70 @@ namespace ShopLogic.Basic
             var inventoryRepo = _database.GetInventoryRepo();
             var deliveryOptionRepo = _database.GetDeliveryOptionRepo();
 
-            var dbShopCart = shopCartRepo.Get(shopCartId) ?? throw new Exception("Invalid shop cart id");
-
-            var deliveryOptions = new List<DeliveryOption>();
-            var dbDeliveryOptions = deliveryOptionRepo.List();
-
-            foreach (var dbDeliveryOption in dbDeliveryOptions)
+            return Conc.LockExec(new object[] { inventoryRepo, deliveryOptionRepo, offerRepo, offerChoiceRepo, shopCartRepo }, () =>
             {
-                bool deliveryOptionAvailable = true;
+                var dbShopCart = shopCartRepo.Get(shopCartId) ?? throw new Exception("Invalid shop cart id");
 
-                foreach (var offerChoiceId in dbShopCart.offerChoiceIds)
+                var deliveryOptions = new List<DeliveryOption>();
+                var dbDeliveryOptions = deliveryOptionRepo.List();
+
+                foreach (var dbDeliveryOption in dbDeliveryOptions)
                 {
-                    var dbOfferChoice = offerChoiceRepo.Get(offerChoiceId) ?? throw new Exception("Invalid offer choice id");
-                    var dbOffer = offerRepo.Get(dbOfferChoice.offerId) ?? throw new Exception("Invalid offer id");
-                    var dbInventory = inventoryRepo.Get(dbOffer.inventoryId) ?? throw new Exception("Invalid inventory id");
+                    bool deliveryOptionAvailable = true;
 
-                    deliveryOptionAvailable &= Utilities.DeliveryOptionAvailableForInventory(dbDeliveryOption.Value, dbInventory);
+                    foreach (var offerChoiceId in dbShopCart.offerChoiceIds)
+                    {
+                        var dbOfferChoice = offerChoiceRepo.Get(offerChoiceId) ?? throw new Exception("Invalid offer choice id");
+                        var dbOffer = offerRepo.Get(dbOfferChoice.offerId) ?? throw new Exception("Invalid offer id");
+                        var dbInventory = inventoryRepo.Get(dbOffer.inventoryId) ?? throw new Exception("Invalid inventory id");
 
-                    if (!deliveryOptionAvailable) { break; }
+                        deliveryOptionAvailable &= Utilities.DeliveryOptionAvailableForInventory(dbDeliveryOption.Value, dbInventory);
+
+                        if (!deliveryOptionAvailable) { break; }
+                    }
+
+                    if (deliveryOptionAvailable)
+                    {
+                        deliveryOptions.Add(Utilities.Convert(dbDeliveryOption.Value, dbDeliveryOption.Key));
+                    }
                 }
 
-                if (deliveryOptionAvailable)
-                {
-                    deliveryOptions.Add(Utilities.Convert(dbDeliveryOption.Value, dbDeliveryOption.Key));
-                }
-            }
-
-            return deliveryOptions.ToArray();
+                return deliveryOptions.ToArray();
+            });
         }
 
         public ShopCart[] GetAllShopCarts()
         {
             var shopCartRepo = _database.GetShopCartRepo();
 
-            var dbShopCarts = shopCartRepo.List();
-            Utilities.Filter(ref dbShopCarts, _currentClientId);
+            return Conc.LockExec(new object[] { shopCartRepo }, () =>
+            {
+                var dbShopCarts = shopCartRepo.List();
+                Utilities.Filter(ref dbShopCarts, _currentClientId);
 
-            return Utilities.Convert(dbShopCarts);
+                return Utilities.Convert(dbShopCarts);
+            });
         }
 
         public int CreateShoppingCart()
         {
             var shopCartRepo = _database.GetShopCartRepo();
-            var newDbShopCart = new Data.ShopCart { clientId = _currentClientId, offerChoiceIds = new HashSet<int>() };
-            return shopCartRepo.Create(newDbShopCart);
+
+            return Conc.LockExec(new object[] { shopCartRepo }, () =>
+            {
+                var newDbShopCart = new Data.ShopCart { clientId = _currentClientId, offerChoiceIds = new HashSet<int>() };
+                return shopCartRepo.Create(newDbShopCart);
+            });
         }
 
         public void DeleteShoppingCart(int shopCartId)
         {
             var shopCartRepo = _database.GetShopCartRepo();
-            if (!shopCartRepo.Delete(shopCartId)) { throw new Exception("Failed to delete shop cart"); }
+
+            Conc.LockExec(new object[] { shopCartRepo }, () =>
+            {
+                if (!shopCartRepo.Delete(shopCartId)) { throw new Exception("Failed to delete shop cart"); }
+            });
         }
 
         public void AddOfferToShoppingCart(int shopCartId, int offerId, int count)
@@ -143,38 +170,41 @@ namespace ShopLogic.Basic
             var shopCartRepo = _database.GetShopCartRepo();
             var inventoryRepo = _database.GetInventoryRepo();
 
-            var dbOffer = offerRepo.Get(offerId) ?? throw new Exception("Invalid offer id");
-            var dbShopCart = shopCartRepo.Get(shopCartId) ?? throw new Exception("Invalid shop cart id");
-            var dbInventory = inventoryRepo.Get(dbOffer.inventoryId) ?? throw new Exception("Invalid inventory id");
-
-            foreach (var dbOfferChoiceId in dbShopCart.offerChoiceIds)
+            Conc.LockExec(new object[] { inventoryRepo, offerRepo, offerChoiceRepo, shopCartRepo }, () =>
             {
-                var dbOfferChoice = offerChoiceRepo.Get(dbOfferChoiceId) ?? throw new Exception("Invalid offer choice id");
+                var dbOffer = offerRepo.Get(offerId) ?? throw new Exception("Invalid offer id");
+                var dbShopCart = shopCartRepo.Get(shopCartId) ?? throw new Exception("Invalid shop cart id");
+                var dbInventory = inventoryRepo.Get(dbOffer.inventoryId) ?? throw new Exception("Invalid inventory id");
 
-                if (dbOfferChoice.offerId != offerId) { continue; }
+                foreach (var dbOfferChoiceId in dbShopCart.offerChoiceIds)
+                {
+                    var dbOfferChoice = offerChoiceRepo.Get(dbOfferChoiceId) ?? throw new Exception("Invalid offer choice id");
 
-                dbOfferChoice.count += count;
+                    if (dbOfferChoice.offerId != offerId) { continue; }
 
-                if (dbOfferChoice.count > dbInventory.count) { throw new Exception("Tried to add more than available"); }
+                    dbOfferChoice.count += count;
 
-                if (!offerChoiceRepo.Update(dbOfferChoiceId, dbOfferChoice)) { throw new Exception("Failed to update offer choice"); }
+                    if (dbOfferChoice.count > dbInventory.count) { throw new Exception("Tried to add more than available"); }
 
-                return;
-            }
+                    if (!offerChoiceRepo.Update(dbOfferChoiceId, dbOfferChoice)) { throw new Exception("Failed to update offer choice"); }
 
-            var newDbOfferChoice = new Data.OfferChoice
-            {
-                offerId = offerId,
-                count = count
-            };
+                    return;
+                }
 
-            if (newDbOfferChoice.count > dbInventory.count) { throw new Exception("Tried to add more than available"); }
+                var newDbOfferChoice = new Data.OfferChoice
+                {
+                    offerId = offerId,
+                    count = count
+                };
 
-            var newDbOfferChoiceId = offerChoiceRepo.Create(newDbOfferChoice);
+                if (newDbOfferChoice.count > dbInventory.count) { throw new Exception("Tried to add more than available"); }
 
-            dbShopCart.offerChoiceIds.Add(newDbOfferChoiceId);
+                var newDbOfferChoiceId = offerChoiceRepo.Create(newDbOfferChoice);
 
-            if (!shopCartRepo.Update(shopCartId, dbShopCart)) { throw new Exception("Failed to update shop cart"); }
+                dbShopCart.offerChoiceIds.Add(newDbOfferChoiceId);
+
+                if (!shopCartRepo.Update(shopCartId, dbShopCart)) { throw new Exception("Failed to update shop cart"); }
+            });
         }
 
         public void DeleteOfferFromShoppingCart(int shopCartId, int offerId, int count)
@@ -184,121 +214,150 @@ namespace ShopLogic.Basic
             var shopCartRepo = _database.GetShopCartRepo();
             var offerChoiceRepo = _database.GetOfferChoiceRepo();
 
-            var dbShopCart = shopCartRepo.Get(shopCartId) ?? throw new Exception("Invalid shop cart id");
-
-            foreach (var dbOfferChoiceId in dbShopCart.offerChoiceIds)
+            Conc.LockExec(new object[] { offerChoiceRepo, shopCartRepo }, () =>
             {
-                var dbOfferChoice = offerChoiceRepo.Get(dbOfferChoiceId) ?? throw new Exception("Invalid offer choice id");
+                var dbShopCart = shopCartRepo.Get(shopCartId) ?? throw new Exception("Invalid shop cart id");
 
-                if (dbOfferChoice.offerId != offerId) { continue; }
-
-                dbOfferChoice.count -= count;
-
-                if (dbOfferChoice.count <= 0 || count == 0)
+                foreach (var dbOfferChoiceId in dbShopCart.offerChoiceIds)
                 {
-                    if (!offerChoiceRepo.Delete(dbOfferChoiceId)) { throw new Exception("Failed to delete offer choice"); }
-                    dbShopCart.offerChoiceIds.Remove(dbOfferChoiceId);
-                    if (!shopCartRepo.Update(shopCartId, dbShopCart)) { throw new Exception("Failed to update shop cart"); }
-                }
-                else
-                {
-                    if (!offerChoiceRepo.Update(dbOfferChoiceId, dbOfferChoice)) { throw new Exception("Failed to update offer choice"); }
+                    var dbOfferChoice = offerChoiceRepo.Get(dbOfferChoiceId) ?? throw new Exception("Invalid offer choice id");
+
+                    if (dbOfferChoice.offerId != offerId) { continue; }
+
+                    dbOfferChoice.count -= count;
+
+                    if (dbOfferChoice.count <= 0 || count == 0)
+                    {
+                        if (!offerChoiceRepo.Delete(dbOfferChoiceId)) { throw new Exception("Failed to delete offer choice"); }
+                        dbShopCart.offerChoiceIds.Remove(dbOfferChoiceId);
+                        if (!shopCartRepo.Update(shopCartId, dbShopCart)) { throw new Exception("Failed to update shop cart"); }
+                    }
+                    else
+                    {
+                        if (!offerChoiceRepo.Update(dbOfferChoiceId, dbOfferChoice)) { throw new Exception("Failed to update offer choice"); }
+                    }
+
+                    return;
                 }
 
-                return;
-            }
-
-            throw new Exception("Invalid offer id");
+                throw new Exception("Invalid offer id");
+            });
         }
 
         public Order CreateOrderFromShoppingCart(int shopCartId, int deliveryOptionId)
         {
-            var shopCartRepo = _database.GetShopCartRepo();
-            var orderRepo = _database.GetOrderRepo();
             var deliveryOptionRepo = _database.GetDeliveryOptionRepo();
+            var orderRepo = _database.GetOrderRepo();
+            var shopCartRepo = _database.GetShopCartRepo();
 
-            var dbShopCart = shopCartRepo.Get(shopCartId) ?? throw new Exception("Invalid shop cart id");
-            var dbDeliveryOption = deliveryOptionRepo.Get(deliveryOptionId) ?? throw new Exception("Invalid delivery option id");
-
-            var newDbOrder = new Data.Order
+            return Conc.LockExec(new object[] { deliveryOptionRepo, orderRepo, shopCartRepo }, () =>
             {
-                clientId = _currentClientId,
-                offerChoiceIds = dbShopCart.offerChoiceIds,
-                deliveryOptionId = deliveryOptionId,
-                creationTime = DateTime.UtcNow,
-                state = Data.OrderState.WAITING
-            };
+                var dbShopCart = shopCartRepo.Get(shopCartId) ?? throw new Exception("Invalid shop cart id");
+                var dbDeliveryOption = deliveryOptionRepo.Get(deliveryOptionId) ?? throw new Exception("Invalid delivery option id");
 
-            var offerChoicesIds = new int[dbShopCart.offerChoiceIds.Count];
-            dbShopCart.offerChoiceIds.CopyTo(offerChoicesIds);
+                var newDbOrder = new Data.Order
+                {
+                    clientId = _currentClientId,
+                    offerChoiceIds = dbShopCart.offerChoiceIds,
+                    deliveryOptionId = deliveryOptionId,
+                    creationTime = DateTime.UtcNow,
+                    state = Data.OrderState.WAITING
+                };
 
-            var newDbOrderId = orderRepo.Create(newDbOrder);
+                var offerChoicesIds = new int[dbShopCart.offerChoiceIds.Count];
+                dbShopCart.offerChoiceIds.CopyTo(offerChoicesIds);
 
-            shopCartRepo.Delete(shopCartId);
+                var newDbOrderId = orderRepo.Create(newDbOrder);
 
-            return new Order
-            {
-                id = newDbOrderId,
-                offerChoicesIds = offerChoicesIds,
-                deliveryOptionId = deliveryOptionId,
-                state = Utilities.Convert(newDbOrder.state)
-            };
+                shopCartRepo.Delete(shopCartId);
+
+                return new Order
+                {
+                    id = newDbOrderId,
+                    offerChoicesIds = offerChoicesIds,
+                    deliveryOptionId = deliveryOptionId,
+                    state = Utilities.Convert(newDbOrder.state)
+                };
+            });
         }
 
         public Order[] GetAllOrders()
         {
             var orderRepo = _database.GetOrderRepo();
 
-            var dbOrders = orderRepo.List();
-            Utilities.Filter(ref dbOrders, _currentClientId);
+            return Conc.LockExec(new object[] { orderRepo }, () =>
+            {
+                var dbOrders = orderRepo.List();
+                Utilities.Filter(ref dbOrders, _currentClientId);
 
-            return Utilities.Convert(dbOrders);
+                return Utilities.Convert(dbOrders);
+            });
         }
 
         public Order GetOrderById(int orderId)
         {
             var orderRepo = _database.GetOrderRepo();
-            var dbOrder = orderRepo.Get(orderId) ?? throw new Exception("Invalid order id");
-            return Utilities.Convert(dbOrder, orderId);
+
+            return Conc.LockExec(new object[] { orderRepo }, () =>
+            {
+                var dbOrder = orderRepo.Get(orderId) ?? throw new Exception("Invalid order id");
+                return Utilities.Convert(dbOrder, orderId);
+            });
         }
 
         public DeliveryOption GetDeliveryOptionById(int deliveryOptionId)
         {
             var deliveryOptionRepo = _database.GetDeliveryOptionRepo();
-            var dbDeliveryOption = deliveryOptionRepo.Get(deliveryOptionId) ?? throw new Exception("Invalid delivery option id");
-            return Utilities.Convert(dbDeliveryOption, deliveryOptionId);
+
+            return Conc.LockExec(new object[] { deliveryOptionRepo }, () =>
+            {
+                var dbDeliveryOption = deliveryOptionRepo.Get(deliveryOptionId) ?? throw new Exception("Invalid delivery option id");
+                return Utilities.Convert(dbDeliveryOption, deliveryOptionId);
+            });
         }
 
         public ShopCart.OfferChoice GetOfferChoiceById(int offerChoiceId)
         {
             var offerChoiceRepo = _database.GetOfferChoiceRepo();
-            var dbOfferChoice = offerChoiceRepo.Get(offerChoiceId) ?? throw new Exception("Invalid offer choice id");
-            return Utilities.Convert(dbOfferChoice, offerChoiceId);
+
+            return Conc.LockExec(new object[] { offerChoiceRepo }, () =>
+            {
+                var dbOfferChoice = offerChoiceRepo.Get(offerChoiceId) ?? throw new Exception("Invalid offer choice id");
+                return Utilities.Convert(dbOfferChoice, offerChoiceId);
+            });
         }
 
         public ShopCart GetShopCartById(int shopCartId)
         {
             var shopCartRepo = _database.GetShopCartRepo();
-            var shopCart = shopCartRepo.Get(shopCartId) ?? throw new Exception("Invalid shop cart id");
-            return Utilities.Convert(shopCart, shopCartId);
+
+            return Conc.LockExec(new object[] { shopCartRepo }, () =>
+            {
+                var shopCart = shopCartRepo.Get(shopCartId) ?? throw new Exception("Invalid shop cart id");
+                return Utilities.Convert(shopCart, shopCartId);
+            });
         }
 
         public Client Get()
         {
             var clientRepo = _database.GetClientRepo();
-            var dbClient = clientRepo.Get(_currentClientId) ?? throw new Exception("Invalid client id");
-            return Utilities.Convert(dbClient, _currentClientId);
+
+            return Conc.LockExec(new object[] { clientRepo }, () =>
+            {
+                var dbClient = clientRepo.Get(_currentClientId) ?? throw new Exception("Invalid client id");
+                return Utilities.Convert(dbClient, _currentClientId);
+            });
         }
 
         public void Update(Client client)
         {
             var clientRepo = _database.GetClientRepo();
-            if (!clientRepo.Update(_currentClientId, Utilities.Convert(client))) { throw new Exception("Failed to update client"); }
+
+            Conc.LockExec(new object[] { clientRepo }, () =>
+            {
+                if (!clientRepo.Update(_currentClientId, Utilities.Convert(client))) { throw new Exception("Failed to update client"); }
+            });
         }
-
-        // reactive part
-
-        private List<IObserver<Offer>> offerObservers = new List<IObserver<Offer>>();
 
         internal class Unsubscriber<Offer> : IDisposable
         {
@@ -313,29 +372,38 @@ namespace ShopLogic.Basic
 
             public void Dispose()
             {
-                if (_observers.Contains(_observer))
+                Conc.LockExec(new object[] { _observers }, () =>
                 {
-                    _observers.Remove(_observer);
-                }
+                    if (_observers.Contains(_observer))
+                    {
+                        _observers.Remove(_observer);
+                    }
+                });
             }
         }
 
         public IDisposable SubscribeForOfferUpdate(IObserver<Offer> observer)
         {
-            if (!offerObservers.Contains(observer))
+            return Conc.LockExec(new object[] { observer }, () =>
             {
-                offerObservers.Add(observer);
-            }
+                if (!offerObservers.Contains(observer))
+                {
+                    offerObservers.Add(observer);
+                }
 
-            return new Unsubscriber<Offer>(offerObservers, observer);
+                return new Unsubscriber<Offer>(offerObservers, observer);
+            });
         }
 
-        private void UpdateOffer(Offer offer)
+        public void UpdateOffer(Offer offer)
         {
-            foreach (var observer in offerObservers)
+            Conc.LockExec(new object[] { offerObservers }, () =>
             {
-                observer.OnNext(offer);
-            }
+                foreach (var observer in offerObservers)
+                {
+                    observer.OnNext(offer);
+                }
+            });
         }
     }
 }
