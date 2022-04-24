@@ -6,25 +6,42 @@ namespace ShopData.MemoryModel
     class Repo<T> : IRepo<T> where T : struct
     {
         private static int id = 0;
-        private static int NewID() { return ++id; }
+        private static object idLock = new object();
+
+        private static int NewID()
+        {
+            lock (idLock)
+            {
+                return ++id;
+            }
+        }
 
         private Dictionary<int, T> _dInventory = new Dictionary<int, T>();
 
         public T? Get(int id)
         {
-            try { return _dInventory[id]; } catch (KeyNotFoundException) { return null; }
+            lock (_dInventory)
+            {
+                try { return _dInventory[id]; } catch (KeyNotFoundException) { return null; }
+            }
         }
 
         public bool Delete(int id)
         {
-            return _dInventory.Remove(id);
+            lock (_dInventory)
+            {
+                return _dInventory.Remove(id);
+            }
         }
 
         public bool Update(int id, T obj)
         {
             try
             {
-                _dInventory[id] = obj;
+                lock (_dInventory)
+                {
+                    _dInventory[id] = obj;
+                }
                 return true;
             }
             catch (KeyNotFoundException)
@@ -36,28 +53,41 @@ namespace ShopData.MemoryModel
         public int Create(T obj)
         {
             var id = NewID();
-            _dInventory.Add(id, obj);
+
+            lock (_dInventory)
+            {
+                _dInventory.Add(id, obj);
+            }
+
             return id;
         }
 
         public int[] ListIds()
         {
             int i = 0;
-            var ids = new int[_dInventory.Count];
 
-            foreach (var key in _dInventory.Keys) { ids[i++] = key; }
+            lock (_dInventory)
+            {
+                var ids = new int[_dInventory.Count];
 
-            return ids;
+                foreach (var key in _dInventory.Keys) { ids[i++] = key; }
+
+                return ids;
+            }
         }
 
         public KeyValuePair<int, T>[] List()
         {
             int i = 0;
-            var ivs = new KeyValuePair<int, T>[_dInventory.Count];
 
-            foreach (var id in ListIds()) { ivs[i++] = new KeyValuePair<int, T>(id, _dInventory[id]); }
+            lock (_dInventory)
+            {
+                var ivs = new KeyValuePair<int, T>[_dInventory.Count];
 
-            return ivs;
+                foreach (var id in ListIds()) { ivs[i++] = new KeyValuePair<int, T>(id, _dInventory[id]); }
+
+                return ivs;
+            }
         }
     }
 }
