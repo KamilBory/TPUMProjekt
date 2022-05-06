@@ -4,9 +4,9 @@ using System.Text;
 
 namespace ShopData.Interface
 {
-    public interface IRepo<T> where T : struct
+    public interface IRepo<T> where T : class
     {
-        T? Get(int id);
+        T Get(int id);
         bool Delete(int id);
         bool Update(int id, T obj);
         int Create(T obj);

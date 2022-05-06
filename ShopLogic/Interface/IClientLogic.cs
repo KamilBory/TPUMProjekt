@@ -4,19 +4,13 @@ namespace ShopLogic.Interface
 {
     public interface IClientLogic
     {
-        // TODO all functions throw exceptions on failure (to be implemented)
+        // interactive interface
 
-        Offer[] GetAllOffers();
+        IOffer[] GetAllOffers();
 
-        Offer GetOfferById(int offerId);
+        IOffer GetOfferById(int offerId);
 
-        DeliveryOption[] GetDeliveryOptionsForOffer(int offerId);
-
-        DeliveryOption[] GetDeliveryOptionsForShopCart(int offerId);
-
-        DeliveryOption GetDeliveryOptionById(int deliveryOptionId);
-
-        ShopCart[] GetAllShopCarts();
+        IShopCart[] GetAllShopCarts();
 
         int CreateShoppingCart();
 
@@ -26,22 +20,22 @@ namespace ShopLogic.Interface
 
         void DeleteOfferFromShoppingCart(int shopCartId, int offerId, int count);
 
-        Order CreateOrderFromShoppingCart(int shopCartId, int deliveryOptionId);
+        IOrder CreateOrderFromShoppingCart(int shopCartId);
 
-        Order[] GetAllOrders();
+        IOrder[] GetAllOrders();
 
-        Order GetOrderById(int orderId);
+        IOrder GetOrderById(int orderId);
 
-        ShopCart.OfferChoice GetOfferChoiceById(int offerChoiceId);
+        IOfferChoice GetOfferChoiceById(int offerChoiceId);
 
-        ShopCart GetShopCartById(int shopCartId);
+        IShopCart GetShopCartById(int shopCartId);
 
-        Client Get();
+        IClient Get();
 
-        void Update(Client client);
+        void Update(IClient client);
 
-        // reactive part
+        // reactive interface
 
-        IDisposable SubscribeForOfferUpdate(IObserver<Offer> observer);
+        IDisposable SubscribeForOfferUpdate(IObserver<IOffer> observer);
     }
 }

@@ -3,7 +3,7 @@ using ShopData.Interface;
 
 namespace ShopLogicTest.TestDatabase
 {
-    class Repo<T> : IRepo<T> where T : struct
+    class Repo<T> : IRepo<T> where T : class
     {
         private int id = 10000;
         private int NewID() { return ++id; }
@@ -12,7 +12,7 @@ namespace ShopLogicTest.TestDatabase
 
         public void Init(Dictionary<int, T> dict) { _dInventory = dict; }
 
-        public T? Get(int id)
+        public T Get(int id)
         {
             try { return _dInventory[id]; } catch (KeyNotFoundException) { return null; }
         }

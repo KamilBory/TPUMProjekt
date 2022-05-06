@@ -1,4 +1,6 @@
 ﻿using ShopLogic.Interface;
+using ShopLogic.Types;
+
 using Data = ShopData.Interface;
 
 using System;
@@ -33,12 +35,7 @@ namespace ShopLogic.Basic
 
         public int RegisterClient(string name, string surname, string password)
         {
-            var newClient = new Data.Client
-            {
-                name = name,
-                surname = surname,
-                password = password
-            };
+            var newClient = _database.CreateClient(name, surname, password);
 
             var clientRepo = _database.GetClientRepo();
 
@@ -80,10 +77,7 @@ namespace ShopLogic.Basic
                 offer.sellPrice += 1;
                 offerRepo.Update(mangledIndex, offer);
 
-                var inventoryRepo = _database.GetInventoryRepo();
-                var inventory = inventoryRepo.Get(offer.inventoryId) ?? throw new Exception("Invalid inventory id");
-
-                var logicOffer = Utilities.Convert(offer, inventory, mangledIndex);
+                var logicOffer = Utilities.Convert(offer, mangledIndex);
                 _currentClientLogic.UpdateOffer(logicOffer);
             }
         }
@@ -93,6 +87,39 @@ namespace ShopLogic.Basic
             _shuttingDown = true;
             _updaterSync.Set();
             _updaterThread?.Join();
+        }
+
+        // type creation for layers above
+
+        public IClient CreateClient() { return new Client(); }
+        public IOffer CreateOffer() { return new Offer(); }
+        public IOfferChoice CreateOfferChoice() { return new OfferChoice(); }
+        public IOrder CreateOrder() { return new Order(); }
+        public IShopCart CreateShopCart() { return new ShopCart(); }
+
+        public IClient CreateClient(string name, string surname)
+        {
+            return new Client { name = name, surname = surname };
+        }
+
+        public IOffer CreateOffer(int sellPrice, string name, string description, int count)
+        {
+            return new Offer { sellPrice = sellPrice, name = name, description = description, count = count };
+        }
+
+        public IOfferChoice CreateOfferChoice(int offerId, int count)
+        {
+            return new OfferChoice { offerId = offerId, count = count };
+        }
+
+        public IOrder CreateOrder(int[] offerChoicesIds, DateTime creationTime, OrderState state)
+        {
+            return new Order { offerChoicesIds = offerChoicesIds, creationTime = creationTime, state = state };
+        }
+
+        public IShopCart CreateShopCart(int[] offerChoiceIds)
+        {
+            return new ShopCart { offerChoiceIds = offerChoiceIds };
         }
     }
 }
