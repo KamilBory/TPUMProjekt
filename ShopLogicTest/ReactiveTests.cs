@@ -20,7 +20,7 @@ namespace ShopLogicTest
         [TestMethod]
         public void ReactiveWorkflow_SingleObserver()
         {
-            Queue<Offer> queue = new Queue<Offer>();
+            Queue<IOffer> queue = new Queue<IOffer>();
 
             var observer = new TestObserver(queue);
 
@@ -66,8 +66,8 @@ namespace ShopLogicTest
         [TestMethod]
         public void ReactiveWorkflow_MultipleObservers()
         {
-            Queue<Offer> queue1 = new Queue<Offer>();
-            Queue<Offer> queue2 = new Queue<Offer>();
+            Queue<IOffer> queue1 = new Queue<IOffer>();
+            Queue<IOffer> queue2 = new Queue<IOffer>();
 
             var observer1 = new TestObserver(queue1);
             var observer2 = new TestObserver(queue2);
@@ -139,14 +139,14 @@ namespace ShopLogicTest
             _logic.Shutdown();
         }
 
-        public class TestObserver : IObserver<Offer>
+        public class TestObserver : IObserver<IOffer>
         {
-            private Queue<Offer> _updatedOffers;
+            private Queue<IOffer> _updatedOffers;
             private AutoResetEvent _notified = new AutoResetEvent(false);
 
-            public TestObserver(Queue<Offer> queue) { _updatedOffers = queue; }
+            public TestObserver(Queue<IOffer> queue) { _updatedOffers = queue; }
 
-            public void OnNext(Offer value)
+            public void OnNext(IOffer value)
             {
                 lock (_updatedOffers)
                 {
@@ -169,25 +169,17 @@ namespace ShopLogicTest
             var testDatabase = new TestDatabase.Database();
 
             {
-                var clients = new Dictionary<int, Data.Client>();
+                var clients = new Dictionary<int, Data.IClient>();
 
-                clients.Add(1, new Data.Client { name = "1name", surname = "1surname", password = "1password" });
+                clients.Add(1, testDatabase.CreateClient("1name", "1surname","1password"));
 
                 testDatabase.SetClientRepo(clients);
             }
             {
-                var inventory = new Dictionary<int, Data.Inventory>();
+                var offers = new Dictionary<int, Data.IOffer>();
 
-                inventory.Add(1, new Data.Inventory { name = "1name", description = "1description", count = 1, size = new Data.InventorySize(2, 3, 4) });
-                inventory.Add(2, new Data.Inventory { name = "2name", description = "2description", count = 2, size = new Data.InventorySize(9, 9, 9) });
-
-                testDatabase.SetInventoryRepo(inventory);
-            }
-            {
-                var offers = new Dictionary<int, Data.Offer>();
-
-                offers.Add(1, new Data.Offer { inventoryId = 1, sellPrice = 10 });
-                offers.Add(2, new Data.Offer { inventoryId = 2, sellPrice = 20 });
+                offers.Add(1, testDatabase.CreateOffer(10, "1name", "1description", 1));
+                offers.Add(2, testDatabase.CreateOffer(20, "2name", "2description", 2));
 
                 testDatabase.SetOfferRepo(offers);
             }

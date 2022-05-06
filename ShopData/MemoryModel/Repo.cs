@@ -3,7 +3,7 @@ using ShopData.Interface;
 
 namespace ShopData.MemoryModel
 {
-    class Repo<T> : IRepo<T> where T : struct
+    class Repo<T> : IRepo<T> where T : class
     {
         private static int id = 0;
         private static object idLock = new object();
@@ -18,7 +18,7 @@ namespace ShopData.MemoryModel
 
         private Dictionary<int, T> _dInventory = new Dictionary<int, T>();
 
-        public T? Get(int id)
+        public T Get(int id)
         {
             lock (_dInventory)
             {

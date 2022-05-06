@@ -11,59 +11,52 @@ namespace ShopDataTest
         public void ObjectLifetime()
         {
             const int testCount = 1;
-            InventorySize testSize = new InventorySize(3, 2, 1);
             const string testName = "Rock";
             const string testDesc = "Nice rock.";
 
             IDatabase database = new ShopData.MemoryModel.Database();
-            var repo = database.GetInventoryRepo();
+            var repo = database.GetOfferRepo();
 
             int savedId, newId1, newId2;
             {
-                var inventory = new Inventory();
+                var offer = database.CreateOffer();
 
-                inventory.count = testCount;
-                inventory.size = testSize;
-                inventory.name = testName;
-                inventory.description = testDesc;
+                offer.count = testCount;
+                offer.name = testName;
+                offer.description = testDesc;
 
-                savedId = repo.Create(inventory);
+                savedId = repo.Create(offer);
             }
 
             {
-                var readInventoryOpt = repo.Get(savedId);
-                Assert.IsNotNull(readInventoryOpt);
+                var offer = repo.Get(savedId);
+                Assert.IsNotNull(offer);
 
-                var inventory = readInventoryOpt.Value;
-
-                Assert.AreEqual(inventory.count, testCount);
-                Assert.AreEqual(inventory.size, testSize);
-                Assert.AreEqual(inventory.name, testName);
-                Assert.AreEqual(inventory.description, testDesc);
+                Assert.AreEqual(offer.count, testCount);
+                Assert.AreEqual(offer.name, testName);
+                Assert.AreEqual(offer.description, testDesc);
 
                 Assert.IsTrue(repo.Delete(savedId));
             }
 
             {
-                var inventory = new Inventory();
+                var offer = database.CreateOffer();
 
-                inventory.count = testCount + 1;
-                inventory.size = testSize;
-                inventory.name = testName;
-                inventory.description = testDesc;
+                offer.count = testCount + 1;
+                offer.name = testName;
+                offer.description = testDesc;
 
-                newId1 = repo.Create(inventory);
+                newId1 = repo.Create(offer);
             }
 
             {
-                var inventory = new Inventory();
+                var offer = database.CreateOffer();
 
-                inventory.count = testCount + 2;
-                inventory.size = testSize;
-                inventory.name = testName;
-                inventory.description = testDesc;
+                offer.count = testCount + 2;
+                offer.name = testName;
+                offer.description = testDesc;
 
-                newId2 = repo.Create(inventory);
+                newId2 = repo.Create(offer);
             }
 
             {

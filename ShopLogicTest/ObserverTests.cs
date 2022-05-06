@@ -17,7 +17,7 @@ namespace ShopLogicTest
         private ILogic _logic;
         private IClientLogic _clientLogic;
 
-        private void UpdateOffer(IClientLogic clientLogic, Offer offer)
+        private void UpdateOffer(IClientLogic clientLogic, IOffer offer)
         {
             Assert.IsNotNull(clientLogic);
 
@@ -38,9 +38,9 @@ namespace ShopLogicTest
             Assert.IsFalse(observer.calledOnCompleted);
             Assert.IsFalse(observer.calledOnError);
 
-            Assert.IsFalse(observer.updatedOffer.HasValue);
+            Assert.IsNull(observer.updatedOffer);
 
-            var newOffer = new Offer();
+            var newOffer = _logic.CreateOffer();
             newOffer.id = 68;
 
             UpdateOffer(_clientLogic, newOffer);
@@ -49,11 +49,12 @@ namespace ShopLogicTest
             Assert.IsFalse(observer.calledOnCompleted);
             Assert.IsFalse(observer.calledOnError);
 
-            Assert.IsTrue(observer.updatedOffer.HasValue);
-            Assert.AreEqual(observer.updatedOffer.Value.id, newOffer.id);
+            Assert.IsNotNull(observer.updatedOffer);
+            Assert.AreEqual(observer.updatedOffer.id, newOffer.id);
 
             unsubscriber.Dispose();
 
+            newOffer = _logic.CreateOffer();
             newOffer.id = 419;
 
             observer.calledOnNext = false;
@@ -65,7 +66,7 @@ namespace ShopLogicTest
             Assert.IsFalse(observer.calledOnCompleted);
             Assert.IsFalse(observer.calledOnError);
 
-            Assert.IsFalse(observer.updatedOffer.HasValue);
+            Assert.IsNull(observer.updatedOffer);
         }
 
         [TestMethod]
@@ -75,11 +76,11 @@ namespace ShopLogicTest
 
             var unsubscriber = _clientLogic.SubscribeForOfferUpdate(observer);
 
-            var newOffer = new Offer();
-
+            var newOffer = _logic.CreateOffer();
             newOffer.id = 67;
             UpdateOffer(_clientLogic, newOffer);
 
+            newOffer = _logic.CreateOffer();
             newOffer.id = 68;
             UpdateOffer(_clientLogic, newOffer);
 
@@ -89,9 +90,9 @@ namespace ShopLogicTest
             {
                 var offer = observer.PullNext();
 
-                if (!offer.HasValue) { break; }
+                if (offer == null) { break; }
 
-                Assert.AreEqual(offer.Value.id, 67 + count);
+                Assert.AreEqual(offer.id, 67 + count);
                 ++count;
             }
 
@@ -107,7 +108,7 @@ namespace ShopLogicTest
             {
                 var offer = observer.PullNext();
 
-                if (!offer.HasValue) { break; }
+                if (offer == null) { break; }
 
                 Assert.Fail();
             }
@@ -116,17 +117,17 @@ namespace ShopLogicTest
         [TestMethod]
         public void OfferSubscribe_ProbablyTheRightWay()
         {
-            Queue<Offer> queue = new Queue<Offer>();
+            Queue<IOffer> queue = new Queue<IOffer>();
 
             var observer = new TestOfferObserver_ProbablyTheRightWay(queue);
 
             var unsubscriber = _clientLogic.SubscribeForOfferUpdate(observer);
 
-            var newOffer = new Offer();
-
+            var newOffer = _logic.CreateOffer();
             newOffer.id = 67;
             UpdateOffer(_clientLogic, newOffer);
 
+            newOffer = _logic.CreateOffer();
             newOffer.id = 68;
             UpdateOffer(_clientLogic, newOffer);
 
@@ -141,13 +142,13 @@ namespace ShopLogicTest
             Assert.ThrowsException<InvalidOperationException>(() => queue.Dequeue());
         }
 
-        public class TestOfferObserver_Simple : IObserver<Offer>
+        public class TestOfferObserver_Simple : IObserver<IOffer>
         {
             public bool calledOnCompleted = false;
             public bool calledOnError = false;
             public bool calledOnNext = false;
 
-            public Offer? updatedOffer;
+            public IOffer updatedOffer;
 
             public void OnCompleted() { calledOnCompleted = true; }
             public void OnError(Exception error) { calledOnError = true; }
@@ -159,21 +160,21 @@ namespace ShopLogicTest
             // with the proper objects and data that will let it do it properly.
             // Also, you should keep in mind that it gets called asynchronously,
             // so proper synchronisation mechanisms are needed (Mutex at least).
-            public void OnNext(Offer value)
+            public void OnNext(IOffer value)
             {
                 calledOnNext = true;
                 updatedOffer = value;
             }
         }
 
-        public class TestOfferObserver_Better : IObserver<Offer>
+        public class TestOfferObserver_Better : IObserver<IOffer>
         {
-            public Queue<Offer> updatedOffers = new Queue<Offer>();
+            public Queue<IOffer> updatedOffers = new Queue<IOffer>();
 
             // This is still pooling. Still suboptimal, but reasonable if you
             // wrote an event loop in a program that is running constantly in
             // the background anyway. 
-            public Offer? PullNext()
+            public IOffer PullNext()
             {
                 lock (updatedOffers)
                 {
@@ -190,7 +191,7 @@ namespace ShopLogicTest
 
             // Minimal synchronisation, but still needs
             // pooling at some point on purpose.
-            public void OnNext(Offer value)
+            public void OnNext(IOffer value)
             {
                 lock (updatedOffers)
                 {
@@ -202,15 +203,15 @@ namespace ShopLogicTest
             public void OnError(Exception error) { throw new NotImplementedException(); }
         }
 
-        public class TestOfferObserver_ProbablyTheRightWay : IObserver<Offer>
+        public class TestOfferObserver_ProbablyTheRightWay : IObserver<IOffer>
         {
-            private Queue<Offer> updatedOffers;
+            private Queue<IOffer> updatedOffers;
 
-            public TestOfferObserver_ProbablyTheRightWay(Queue<Offer> queue) { updatedOffers = queue; }
+            public TestOfferObserver_ProbablyTheRightWay(Queue<IOffer> queue) { updatedOffers = queue; }
 
             // You don't pull the changes explicitly. Instead the
             // observer acts on objects that you provided to it.
-            public void OnNext(Offer value)
+            public void OnNext(IOffer value)
             {
                 lock (updatedOffers)
                 {
@@ -229,25 +230,17 @@ namespace ShopLogicTest
             var testDatabase = new TestDatabase.Database();
 
             {
-                var clients = new Dictionary<int, Data.Client>();
+                var clients = new Dictionary<int, Data.IClient>();
 
-                clients.Add(1, new Data.Client { name = "1name", surname = "1surname", password = "1password" });
+                clients.Add(1, testDatabase.CreateClient("1name", "1surname", "1password"));
 
                 testDatabase.SetClientRepo(clients);
             }
             {
-                var inventory = new Dictionary<int, Data.Inventory>();
+                var offers = new Dictionary<int, Data.IOffer>();
 
-                inventory.Add(1, new Data.Inventory { name = "1name", description = "1description", count = 1, size = new Data.InventorySize(2, 3, 4) });
-                inventory.Add(2, new Data.Inventory { name = "2name", description = "2description", count = 2, size = new Data.InventorySize(9, 9, 9) });
-
-                testDatabase.SetInventoryRepo(inventory);
-            }
-            {
-                var offers = new Dictionary<int, Data.Offer>();
-
-                offers.Add(1, new Data.Offer { inventoryId = 1, sellPrice = 10 });
-                offers.Add(2, new Data.Offer { inventoryId = 2, sellPrice = 20 });
+                offers.Add(1, testDatabase.CreateOffer(10, "1name", "1description", 1));
+                offers.Add(2, testDatabase.CreateOffer(20, "2name", "2description", 2));
 
                 testDatabase.SetOfferRepo(offers);
             }

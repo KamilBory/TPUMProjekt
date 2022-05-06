@@ -1,30 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 using Data = ShopData.Interface;
+using ShopLogic.Types;
 using ShopLogic.Interface;
 
 namespace ShopLogic.Basic
 {
     static class Utilities
     {
-        public static bool DeliveryOptionAvailableForInventory(Data.DeliveryOption deliveryOption, Data.Inventory inventory)
+        public static void Filter(ref KeyValuePair<int, Data.IOfferChoice>[] inOut, HashSet<int> ids)
         {
-            var doSize = deliveryOption.maxSize;
-            var invSize = inventory.size;
-
-            if (doSize.width <= invSize.width || doSize.height <= invSize.height || doSize.depth <= invSize.depth)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public static void Filter(ref KeyValuePair<int, Data.OfferChoice>[] inOut, HashSet<int> ids)
-        {
-            var filteredValuesList = new List<KeyValuePair<int, Data.OfferChoice>>();
+            var filteredValuesList = new List<KeyValuePair<int, Data.IOfferChoice>>();
 
             foreach (var pair in inOut)
             {
@@ -36,9 +23,9 @@ namespace ShopLogic.Basic
             inOut = filteredValuesList.ToArray();
         }
 
-        public static void Filter(ref KeyValuePair<int, Data.Order>[] inOut, int clientId)
+        public static void Filter(ref KeyValuePair<int, Data.IOrder>[] inOut, int clientId)
         {
-            var filteredValuesList = new List<KeyValuePair<int, Data.Order>>();
+            var filteredValuesList = new List<KeyValuePair<int, Data.IOrder>>();
 
             foreach (var pair in inOut)
             {
@@ -50,9 +37,9 @@ namespace ShopLogic.Basic
             inOut = filteredValuesList.ToArray();
         }
 
-        public static void Filter(ref KeyValuePair<int, Data.ShopCart>[] inOut, int clientId)
+        public static void Filter(ref KeyValuePair<int, Data.IShopCart>[] inOut, int clientId)
         {
-            var filteredValuesList = new List<KeyValuePair<int, Data.ShopCart>>();
+            var filteredValuesList = new List<KeyValuePair<int, Data.IShopCart>>();
 
             foreach (var pair in inOut)
             {
@@ -64,74 +51,80 @@ namespace ShopLogic.Basic
             inOut = filteredValuesList.ToArray();
         }
 
-        public static Order.State Convert(Data.OrderState input)
+        public static OrderState Convert(Data.OrderState input)
         {
             switch (input)
             {
                 case Data.OrderState.WAITING:
-                    return Order.State.WAITING;
+                    return OrderState.WAITING;
                 case Data.OrderState.PREPARED:
-                    return Order.State.PREPARED;
+                    return OrderState.PREPARED;
                 case Data.OrderState.SENT:
-                    return Order.State.SENT;
+                    return OrderState.SENT;
                 case Data.OrderState.FULFILLED:
-                    return Order.State.FULFILLED;
+                    return OrderState.FULFILLED;
             }
 
             throw new Exception("Input order state enum out of range");
         }
 
-        public static Data.OrderState Convert(Order.State input)
+        public static Data.OrderState Convert(OrderState input)
         {
             switch (input)
             {
-                case Order.State.WAITING:
+                case OrderState.WAITING:
                     return Data.OrderState.WAITING;
-                case Order.State.PREPARED:
+                case OrderState.PREPARED:
                     return Data.OrderState.PREPARED;
-                case Order.State.SENT:
+                case OrderState.SENT:
                     return Data.OrderState.SENT;
-                case Order.State.FULFILLED:
+                case OrderState.FULFILLED:
                     return Data.OrderState.FULFILLED;
             }
 
             throw new Exception("Input order state enum out of range");
         }
 
-        public static ShopCart.OfferChoice Convert(Data.OfferChoice input, int id) { return new ShopCart.OfferChoice { id = id, offerId = input.offerId, count = input.count }; }
-        public static Data.OfferChoice Convert(ShopCart.OfferChoice input) { return new Data.OfferChoice { offerId = input.offerId, count = input.count }; }
-
-        public static ShopCart.OfferChoice[] Convert(KeyValuePair<int, Data.OfferChoice>[] input)
+        public static OfferChoice Convert(Data.IOfferChoice input, int id)
         {
-            var output = new ShopCart.OfferChoice[input.Length];
+            return new OfferChoice { id = id, offerId = input.offerId, count = input.count };
+        }
+
+        public static Data.IOfferChoice Convert(IOfferChoice input, Data.IDatabase database)
+        {
+            return database.CreateOfferChoice(input.offerId, input.count);
+        }
+
+        public static OfferChoice[] Convert(KeyValuePair<int, Data.IOfferChoice>[] input)
+        {
+            var output = new OfferChoice[input.Length];
             for (int i = 0; i < input.Length; ++i) { output[i] = Convert(input[i].Value, input[i].Key); }
             return output;
         }
 
-        public static ShopCart.OfferChoice[] Convert(Dictionary<int, Data.OfferChoice> input)
+        public static OfferChoice[] Convert(Dictionary<int, Data.IOfferChoice> input, Data.IDatabase database)
         {
             int i = 0;
-            var output = new KeyValuePair<int, Data.OfferChoice>[input.Count];
+            var output = new KeyValuePair<int, Data.IOfferChoice>[input.Count];
 
-            foreach (var id in input.Keys) { output[i++] = new KeyValuePair<int, Data.OfferChoice>(id, input[id]); }
+            foreach (var id in input.Keys) { output[i++] = new KeyValuePair<int, Data.IOfferChoice>(id, input[id]); }
 
             return Convert(output);
         }
 
-        public static Data.OfferChoice[] Convert(ShopCart.OfferChoice[] input)
+        public static Data.IOfferChoice[] Convert(IOfferChoice[] input, Data.IDatabase database)
         {
-            var output = new Data.OfferChoice[input.Length];
-            for (int i = 0; i < input.Length; ++i) { output[i] = Convert(input[i]); }
+            var output = new Data.IOfferChoice[input.Length];
+            for (int i = 0; i < input.Length; ++i) { output[i] = Convert(input[i], database); }
             return output;
         }
 
-        public static Order Convert(Data.Order input, int id)
+        public static Order Convert(Data.IOrder input, int id)
         {
             var output = new Order
             {
                 id = id,
                 offerChoicesIds = new int[input.offerChoiceIds.Count],
-                deliveryOptionId = input.deliveryOptionId,
                 state = Convert(input.state)
             };
 
@@ -140,31 +133,36 @@ namespace ShopLogic.Basic
             return output;
         }
 
-        public static Order[] Convert(KeyValuePair<int, Data.Order>[] input)
+        public static Order[] Convert(KeyValuePair<int, Data.IOrder>[] input)
         {
             var output = new Order[input.Length];
             for (int i = 0; i < input.Length; ++i) { output[i] = Convert(input[i].Value, input[i].Key); }
             return output;
         }
 
-        public static Data.Client Convert(Client input) { return new Data.Client { name = input.name, surname = input.surname }; }
-        public static Client Convert(Data.Client input, int id) { return new Client { id = id, name = input.name, surname = input.surname }; }
+        public static Data.IClient Convert(IClient input, string password, Data.IDatabase database)
+        {
+            return database.CreateClient(input.name, input.surname, password);
+        }
 
-        public static DeliveryOption Convert(Data.DeliveryOption input, int id) { return new DeliveryOption { id = id, name = input.name, price = input.price }; }
+        public static Client Convert(Data.IClient input, int id)
+        {
+            return new Client { id = id, name = input.name, surname = input.surname };
+        }
 
-        public static Offer Convert(Data.Offer offer, Data.Inventory inventory, int id)
+        public static Offer Convert(Data.IOffer offer, int id)
         {
             return new Offer
             {
                 id = id,
-                name = inventory.name,
-                description = inventory.description,
-                availableCount = inventory.count,
+                name = offer.name,
+                description = offer.description,
+                count = offer.count,
                 sellPrice = offer.sellPrice
             };
         }
 
-        public static ShopCart Convert(Data.ShopCart shopCart, int id)
+        public static ShopCart Convert(Data.IShopCart shopCart, int id)
         {
             var offerChoiceIds = new int[shopCart.offerChoiceIds.Count];
             shopCart.offerChoiceIds.CopyTo(offerChoiceIds);
@@ -176,7 +174,7 @@ namespace ShopLogic.Basic
             };
         }
 
-        public static ShopCart[] Convert(KeyValuePair<int, Data.ShopCart>[] input)
+        public static ShopCart[] Convert(KeyValuePair<int, Data.IShopCart>[] input)
         {
             var output = new ShopCart[input.Length];
             for (int i = 0; i < input.Length; ++i) { output[i] = Convert(input[i].Value, input[i].Key); }
