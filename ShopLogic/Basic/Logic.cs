@@ -2,6 +2,7 @@
 using ShopLogic.Types;
 
 using Data = ShopData.Interface;
+using DataImpl = ShopData.MemoryModel;
 
 using System;
 using System.Threading;
@@ -20,7 +21,22 @@ namespace ShopLogic.Basic
 
         private readonly int _updaterDelay = 1000;
 
+        static private Data.IDatabase CreateDefaultDatabase()
+        {
+            var database = new DataImpl.Database();
+
+            // ***********************************************************
+            // * PLEASE INITIALIZE THE WHOOOOLE DATABASE HERE PLEEEASSSS *
+            // ***********************************************************
+
+            return database;
+        }
+
+        public Logic() : this(CreateDefaultDatabase()) { }
+
         public Logic(Data.IDatabase database) : this(database, 1000) { }
+
+        public Logic(int updaterDelay) : this(CreateDefaultDatabase(), updaterDelay) { }
 
         public Logic(Data.IDatabase database, int updaterDelay) { _database = database; _updaterDelay = updaterDelay; }
 
@@ -65,7 +81,10 @@ namespace ShopLogic.Basic
         {
             while (true)
             {
-                _updaterSync.WaitOne(_updaterDelay);
+                if (_updaterDelay > 0)
+                {
+                    _updaterSync.WaitOne(_updaterDelay);
+                }
 
                 if (_shuttingDown) { break; }
 
