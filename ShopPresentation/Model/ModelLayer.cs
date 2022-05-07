@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
-using Logic = ShopLogic.Interface;
+using LogicInterface = ShopLogic.Interface;
+using ShopLogic.Basic;
 
 namespace ShopPresentation.Model
 {
@@ -10,11 +11,15 @@ namespace ShopPresentation.Model
     {
         public ObservableCollection<Offer> offers { get; private set; }
 
-        private Logic.IClientLogic clientLogic { get; }
+        private LogicInterface.IClientLogic clientLogic { get; }
 
-        public ModelLayer(Logic.IClientLogic clientLogic)
+        private LogicInterface.ILogic logic { get; }
+
+        public ModelLayer()
         {
-            this.clientLogic = clientLogic;
+            logic = new Logic();
+            int id = logic.RegisterClient("Jan", "Nowak", "xd");
+            clientLogic = logic.GetClientLogic(id, "xd");
 
             offers = new ObservableCollection<Offer>();
         }
@@ -30,7 +35,7 @@ namespace ShopPresentation.Model
             }
         }
 
-        internal static Offer ToOffer(Logic.IOffer offer)
+        internal static Offer ToOffer(LogicInterface.IOffer offer)
         {
             return new Offer
             {
@@ -41,7 +46,7 @@ namespace ShopPresentation.Model
             };
         }
 
-        public Offer[] ConvertArray(Logic.IOffer[] offers)
+        public Offer[] ConvertArray(LogicInterface.IOffer[] offers)
         {
             Offer[] offerArray = new Offer[offers.Length];
             for (int i = 0; i < offers.Length; i++)
@@ -50,6 +55,22 @@ namespace ShopPresentation.Model
             }
 
             return offerArray;
+        }
+
+        public void AddToCart()
+        {
+            int shopCartId;
+            var shopCarts = clientLogic.GetAllShopCarts();
+            if (shopCarts.Length == 0)
+            {
+                shopCartId = clientLogic.CreateShoppingCart();
+            }
+            else
+            {
+                shopCartId = shopCarts[0].id;
+            }
+
+
         }
 
     }

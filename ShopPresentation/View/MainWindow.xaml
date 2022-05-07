@@ -8,9 +8,9 @@
         mc:Ignorable="d"
         Title="ShopOffer" Height="600" Width="900" ResizeMode="NoResize">
 
-    <Window.Resources>
-        <vm:MainWindowViewModel x:Key="mainVM"/>
-    </Window.Resources>
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
 
     <Border Background="White">
         <Grid Margin="-2,0,2,0">
@@ -30,18 +30,20 @@
             <Button x:Name="MainBtn" Content="Store" Height="40" Width="90" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,230,0" Background="Aqua"
                     Foreground="Black" FontSize="18" Click="MainBtn_Click"/>
 
-            <ListBox Grid.Row="1" ItemsSource="{Binding offers}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel>
-                            <TextBlock Text ="{Binding name}" Width="100" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Center" FontSize="22" FontWeight="Bold" Margin="10, 0, 0, 0"/>
-                            <TextBlock Text ="{Binding description}" Width="500" Height="70" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Center" FontSize="18" Margin="120, 0, 0, 0"/>
-                            <TextBlock Text ="{Binding price}" Width="70" Height="30" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Center" FontSize="20" Margin="0, 0, 180, 0"/>
-                            <Button Content="Add to cart" Command="{Binding AddToCartCommand}" Height="40" Width="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0, 0, 40, 0" Background="Aqua" Foreground="Black" FontSize="18"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+            <ScrollViewer Grid.Row="1">
+                <ListBox ItemsSource="{Binding offers}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Name="OfferPanel" Orientation="Horizontal">
+                                <TextBlock Text ="{Binding name}" Width="100" TextAlignment="Center" FontSize="22" FontWeight="Bold"/>
+                                <TextBlock Text ="{Binding description}" Width="500" TextAlignment="Center" Height="70" FontSize="18"/>
+                                <TextBlock Text ="{Binding price}" Width="70" Height="30" TextAlignment="Center" FontSize="20"/>
+                                <Button Content="Add to cart" Command="{Binding AddToCartCommand}" Height="40" Width="100" HorizontalAlignment="Right" Background="Aqua" Foreground="Black" FontSize="18"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </ScrollViewer>
 
             <ScrollViewer Grid.Row="1" Visibility="{Binding showCart}">
                 <StackPanel Name="CartPanel"/>

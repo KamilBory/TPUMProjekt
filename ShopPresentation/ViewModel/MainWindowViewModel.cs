@@ -7,6 +7,7 @@ using System.Windows;
 using ShopPresentation.Model;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
+using ShopPresentation.ViewModel.Commands;
 
 namespace ShopPresentation.ViewModel
 {
@@ -18,8 +19,14 @@ namespace ShopPresentation.ViewModel
 
         public ICommand AddToCartCommand { get; private set; }
 
+        public ICommand CrateOrderCommand { get; private set; }
+
         public MainWindowViewModel()
         {
+            modelLayer = new ModelLayer();
+            AddToCartCommand = new Actions(modelLayer.AddToCart);
+
+
             modelLayer.RefreshOffers();
         }
 

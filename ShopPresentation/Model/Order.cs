@@ -4,7 +4,8 @@ using System.Text;
 
 namespace ShopPresentation.Model
 {
-    class Order
+    public class Order
     {
+
     }
 }
