@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 
 using Logic = ShopLogic.Interface;
+using ShopModel.Types;
+using ShopModel.Interface;
 
-namespace ShopPresentation.Model
+namespace ShopModel.Basic
 {
     static internal class Utils
     {
@@ -19,12 +21,12 @@ namespace ShopPresentation.Model
 
         public static Order ToOrder(Logic.IOrder iorder, Logic.IClientLogic clientLogic)
         {
-            var order = new Order { entries = new ObservableCollection<Order.Entry>() };
+            var order = new Order { entries = new ObservableCollection<IOrderEntry>() };
             order.id = iorder.id;
 
             for (int i = 0; i < iorder.offerChoicesIds.Length; ++i)
             {
-                var entry = new Order.Entry();
+                var entry = new OrderEntry();
                 entry.choiceId = iorder.offerChoicesIds[i];
 
                 var offerChoice = clientLogic.GetOfferChoiceById(entry.choiceId);
@@ -44,12 +46,12 @@ namespace ShopPresentation.Model
 
         public static Cart ToCart(Logic.IShopCart icart, Logic.IClientLogic clientLogic)
         {
-            Cart cart = new Cart { entries = new ObservableCollection<Cart.Entry>() };
+            Cart cart = new Cart { entries = new ObservableCollection<ICartEntry>() };
             cart.id = icart.id;
 
             for (int i = 0; i < icart.offerChoiceIds.Length; ++i)
             {
-                var entry = new Cart.Entry();
+                var entry = new CartEntry();
                 entry.choiceId = icart.offerChoiceIds[i];
                 entry.parentCart = cart.id;
 

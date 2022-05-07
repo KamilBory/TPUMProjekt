@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace ShopPresentation.ViewModel.Commands
+#pragma warning disable 67
+
+namespace ShopViewModel
 {
     public class RelayCommand<T> : ICommand
     {

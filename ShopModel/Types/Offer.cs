@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ShopModel.Interface;
 
-namespace ShopPresentation.Model
+namespace ShopModel.Types
 {
-    public class Offer
+    public class Offer : IOffer
     {
         public int id { get; set; }
         public string name { get; set; }

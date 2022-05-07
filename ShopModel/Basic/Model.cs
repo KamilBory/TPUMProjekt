@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text;
+
+using ShopModel.Types;
+using ShopModel.Interface;
+
 using Logic = ShopLogic.Interface;
 using LogicImpl = ShopLogic.Basic;
-using System.ComponentModel;
 
-namespace ShopPresentation.Model
+namespace ShopModel.Basic
 {
-    public class ModelLayer
+    public class Model : IModel
     {
-        public ObservableCollection<Offer> offers { get; set; }
-        public ObservableCollection<Order> orders { get; set; }
-        public ObservableCollection<Cart> carts { get; set; }
+        public ObservableCollection<IOffer> offers { get; set; }
+        public ObservableCollection<IOrder> orders { get; set; }
+        public ObservableCollection<ICart> carts { get; set; }
 
         internal System.Threading.SynchronizationContext sync = new System.Threading.SynchronizationContext();
 
@@ -21,40 +23,38 @@ namespace ShopPresentation.Model
         private OfferObserver offerObserver;
         private IDisposable offerUnsubscriber;
 
-        private static ModelLayer singleton;
+        private static Model singleton;
 
-        public static ModelLayer GetModelLayer()
+        public static Model GetModelLayer()
         {
-            if (singleton == null) { singleton = new ModelLayer(); }
+            if (singleton == null) { singleton = new Model(); }
             return singleton;
         }
 
-        private ModelLayer()
+        private Model()
         {
             logic = new LogicImpl.Logic();
             clientLogic = logic.GetClientLogic(logic.RegisterClient("Jan", "Nowak", "xd"), "xd");
 
-            offers = new ObservableCollection<Offer>();
-            orders = new ObservableCollection<Order>();
-            carts = new ObservableCollection<Cart>();
+            offers = new ObservableCollection<IOffer>();
+            orders = new ObservableCollection<IOrder>();
+            carts = new ObservableCollection<ICart>();
 
             RefreshOffers();
             RefreshOrders();
             RefreshCarts();
 
-            System.Windows.Data.BindingOperations.EnableCollectionSynchronization(offers, offers);
-
             offerObserver = new OfferObserver(this);
             offerUnsubscriber = clientLogic.SubscribeForOfferUpdate(offerObserver);
         }
 
-        ~ModelLayer() { offerUnsubscriber.Dispose(); }
+        ~Model() { offerUnsubscriber.Dispose(); }
 
-        public IEnumerable<Offer> filteredOffers => Utils.ConvertArray(clientLogic.GetAllOffers());
-        public IEnumerable<Order> filteredOrders => Utils.ConvertArray(clientLogic.GetAllOrders(), clientLogic);
-        public IEnumerable<Cart> filteredCarts => Utils.ConvertArray(clientLogic.GetAllShopCarts(), clientLogic);
+        private IEnumerable<Offer> filteredOffers => Utils.ConvertArray(clientLogic.GetAllOffers());
+        private IEnumerable<Order> filteredOrders => Utils.ConvertArray(clientLogic.GetAllOrders(), clientLogic);
+        private IEnumerable<Cart> filteredCarts => Utils.ConvertArray(clientLogic.GetAllShopCarts(), clientLogic);
 
-        public void RefreshOffers()
+        internal void RefreshOffers()
         {
             lock (offers)
             {
@@ -63,7 +63,7 @@ namespace ShopPresentation.Model
             }
         }
 
-        public void RefreshOrders()
+        internal void RefreshOrders()
         {
             lock (orders)
             {
@@ -72,7 +72,7 @@ namespace ShopPresentation.Model
             }
         }
 
-        public void RefreshCarts()
+        internal void RefreshCarts()
         {
             lock (carts)
             {
@@ -81,7 +81,7 @@ namespace ShopPresentation.Model
             }
         }
 
-        public void AddToCart(Offer offer)
+        public void AddToCart(IOffer offer)
         {
             int shopCartId;
             var shopCarts = clientLogic.GetAllShopCarts();
@@ -106,7 +106,7 @@ namespace ShopPresentation.Model
             }
         }
 
-        public void MakeOrderFromCart(Cart cart)
+        public void MakeOrderFromCart(ICart cart)
         {
             try
             {
@@ -119,7 +119,7 @@ namespace ShopPresentation.Model
             }
         }
 
-        public void DeleteOneFromCart(Cart.Entry cartEntry)
+        public void DeleteOneFromCart(ICartEntry cartEntry)
         {
             try
             {

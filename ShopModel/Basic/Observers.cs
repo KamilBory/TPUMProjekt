@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 using Logic = ShopLogic.Interface;
 
-namespace ShopPresentation.Model
+namespace ShopModel.Basic
 {
     internal class OfferObserver : IObserver<Logic.IOffer>
     {
-        ModelLayer modelLayer;
-        public OfferObserver(ModelLayer ml) { modelLayer = ml; }
+        Model modelLayer;
+        public OfferObserver(Model ml) { modelLayer = ml; }
 
         public void OnCompleted() { }
         public void OnError(Exception error) { }
@@ -21,8 +19,8 @@ namespace ShopPresentation.Model
 
     internal class OrderObserver : IObserver<Logic.IOrder>
     {
-        ModelLayer modelLayer;
-        public OrderObserver(ModelLayer ml) { modelLayer = ml; }
+        Model modelLayer;
+        public OrderObserver(Model ml) { modelLayer = ml; }
 
         public void OnCompleted() { }
         public void OnError(Exception error) { }
@@ -34,8 +32,8 @@ namespace ShopPresentation.Model
 
     internal class CartObserver : IObserver<Logic.IShopCart>
     {
-        ModelLayer modelLayer;
-        public CartObserver(ModelLayer ml) { modelLayer = ml; }
+        Model modelLayer;
+        public CartObserver(Model ml) { modelLayer = ml; }
 
         public void OnCompleted() { }
         public void OnError(Exception error) { }
