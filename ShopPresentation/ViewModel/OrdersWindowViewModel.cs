@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ShopPresentation.ViewModel
 {
-    public class OrdersViewModel
+    public class OrdersWindowViewModel
     {
         
     }

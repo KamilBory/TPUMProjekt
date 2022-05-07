@@ -24,5 +24,23 @@ namespace ShopPresentation
         {
             InitializeComponent();
         }
+
+        private void OrdersBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.CartPanel.Visibility = Visibility.Hidden;
+            this.OfferPanel.Visibility = Visibility.Visible;
+        }
+
+        private void CartBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.CartPanel.Visibility = Visibility.Visible;
+            this.OfferPanel.Visibility = Visibility.Hidden;
+        }
+
+        private void MainBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.CartPanel.Visibility = Visibility.Hidden;
+            this.OfferPanel.Visibility = Visibility.Hidden;
+        }
     }
 }

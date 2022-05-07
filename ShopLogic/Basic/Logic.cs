@@ -24,10 +24,22 @@ namespace ShopLogic.Basic
         static private Data.IDatabase CreateDefaultDatabase()
         {
             var database = new DataImpl.Database();
-
             // ***********************************************************
             // * PLEASE INITIALIZE THE WHOOOOLE DATABASE HERE PLEEEASSSS *
             // ***********************************************************
+            var offerRepo = database.GetOfferRepo();
+            int savedId, savedId1, savedId2, savedId3, savedId4;
+            var offer = database.CreateOffer();
+            offer.name = "Phone"; offer.description = "Phone description"; offer.count = 5; offer.sellPrice = 350;
+            savedId = offerRepo.Create(offer);
+            offer.name = "Keyboard"; offer.description = "Keyboard description"; offer.count = 7; offer.sellPrice = 150;
+            savedId1 = offerRepo.Create(offer);
+            offer.name = "Mouse"; offer.description = "Mouse description"; offer.count = 3; offer.sellPrice = 50;
+            savedId2 = offerRepo.Create(offer);
+            offer.name = "Fridge"; offer.description = "Fridge description"; offer.count = 2; offer.sellPrice = 650;
+            savedId3 = offerRepo.Create(offer);
+            offer.name = "Monitor"; offer.description = "Monitor description"; offer.count = 6; offer.sellPrice = 250;
+            savedId4 = offerRepo.Create(offer);
 
             return database;
         }

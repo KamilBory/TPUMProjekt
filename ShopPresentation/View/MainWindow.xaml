@@ -22,17 +22,26 @@
             <TextBlock Text="2B Electronics" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,0,0" Foreground="Black" FontSize="25"/>
 
             <Button x:Name="CartBtn" Content="Cart" Height="40" Width="80" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0" Background="Aqua"
-                    Foreground="Black" FontSize="18" Click="ShowCart"/>
+                    Foreground="Black" FontSize="18" Click="CartBtn_Click"/>
 
             <Button x:Name="OrdersBtn" Content="My Orders" Height="40" Width="90" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,120,0" Background="Aqua"
-                    Foreground="Black" FontSize="18" Click="ShowOrders"/>
+                    Foreground="Black" FontSize="18" Click="OrdersBtn_Click"/>
             
-            <Button x:Name="MainBtn" Content="" Height="40" Width="90" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,120,0" Background="Aqua"
-                    Foreground="Black" FontSize="18" Click="ShowShopFront"/>
+            <Button x:Name="MainBtn" Content="Store" Height="40" Width="90" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,230,0" Background="Aqua"
+                    Foreground="Black" FontSize="18" Click="MainBtn_Click"/>
 
-            <ScrollViewer Grid.Row="1" Visibility="{Binding showShopFront}">
-                <StackPanel Name="ShopFrontPanel" Binding.SourceUpdated="stackPanel"/>
-            </ScrollViewer>
+            <ListBox Grid.Row="1" ItemsSource="{Binding offers}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <TextBlock Text ="{Binding name}" Width="100" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Center" FontSize="22" FontWeight="Bold" Margin="10, 0, 0, 0"/>
+                            <TextBlock Text ="{Binding description}" Width="500" Height="70" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Center" FontSize="18" Margin="120, 0, 0, 0"/>
+                            <TextBlock Text ="{Binding price}" Width="70" Height="30" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Center" FontSize="20" Margin="0, 0, 180, 0"/>
+                            <Button Content="Add to cart" Command="{Binding AddToCartCommand}" Height="40" Width="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0, 0, 40, 0" Background="Aqua" Foreground="Black" FontSize="18"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
 
             <ScrollViewer Grid.Row="1" Visibility="{Binding showCart}">
                 <StackPanel Name="CartPanel"/>
