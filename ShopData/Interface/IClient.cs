@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ShopData.Interface
 {
-    public interface IClient
+    public interface IClient : ICloneable
     {
         string name { set; get; }
         string surname { set; get; }

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ShopData.Interface
 {
-    public interface IOffer
+    public interface IOffer : ICloneable
     {
         int sellPrice { get; set; }
         string name { get; set; }

@@ -6,5 +6,14 @@ namespace ShopData.Types
     {
         public int offerId { get; set; }
         public int count { get; set; }
+
+        public object Clone()
+        {
+            return new OfferChoice
+            {
+                offerId = offerId,
+                count = count
+            };
+        }
     }
 }

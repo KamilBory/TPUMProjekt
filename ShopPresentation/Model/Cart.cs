@@ -1,10 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Collections.ObjectModel;
 
 namespace ShopPresentation.Model
 {
-    class Cart
+    public class Cart
     {
+        public class Entry
+        {
+            public int parentCart { get; set; }
+            public int choiceId { get; set; }
+            public int offerId { get; set; }
+            public string name { get; set; }
+            public int count { get; set; }
+            public int price { get; set; }
+            public int sumPrice { get; set; }
+        }
+
+        public int id { get; set; }
+        public ObservableCollection<Entry> entries { get; set; }
     }
 }

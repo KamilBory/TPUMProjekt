@@ -19,7 +19,8 @@ namespace ShopLogic.Basic
         private Thread _updaterThread;
         private AutoResetEvent _updaterSync = new AutoResetEvent(false);
 
-        private readonly int _updaterDelay = 1000;
+        const int DEFAULT_DELAY = 5000;
+        private readonly int _updaterDelay;
 
         static private Data.IDatabase CreateDefaultDatabase()
         {
@@ -39,7 +40,7 @@ namespace ShopLogic.Basic
 
         public Logic() : this(CreateDefaultDatabase()) { }
 
-        public Logic(Data.IDatabase database) : this(database, 1000) { }
+        public Logic(Data.IDatabase database) : this(database, DEFAULT_DELAY) { }
 
         public Logic(int updaterDelay) : this(CreateDefaultDatabase(), updaterDelay) { }
 
@@ -73,11 +74,15 @@ namespace ShopLogic.Basic
 
         private void SpinUpOrderUpdater()
         {
+            if (_updaterThread != null) { return; }
+
             var offers = _currentClientLogic.GetAllOffers();
 
             mangledIndex = offers[new System.Random().Next() % offers.Length].id;
 
             _updaterThread = new Thread(new ThreadStart(OrderUpdater));
+
+            _updaterThread.IsBackground = true;
 
             _updaterThread.Start();
         }

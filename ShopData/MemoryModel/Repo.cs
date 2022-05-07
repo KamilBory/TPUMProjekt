@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using System;
 using ShopData.Interface;
 
 namespace ShopData.MemoryModel
 {
-    class Repo<T> : IRepo<T> where T : class
+    class Repo<T> : IRepo<T> where T : class, ICloneable
     {
         private static int id = 0;
         private static object idLock = new object();
@@ -22,7 +23,7 @@ namespace ShopData.MemoryModel
         {
             lock (_dInventory)
             {
-                try { return _dInventory[id]; } catch (KeyNotFoundException) { return null; }
+                try { return _dInventory[id].Clone() as T; } catch (KeyNotFoundException) { return null; }
             }
         }
 

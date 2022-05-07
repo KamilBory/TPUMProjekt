@@ -15,25 +15,21 @@ namespace ShopPresentation.ViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private ModelLayer modelLayer;
+        private ModelLayer modelLayer = ModelLayer.GetModelLayer();
 
         public ICommand AddToCartCommand { get; private set; }
+        public ICommand MakeOrderFromCartCommand { get; private set; }
+        public ICommand DeleteOneChoiceFromCart { get; private set; }
 
-        public ICommand CrateOrderCommand { get; private set; }
+        public ObservableCollection<Offer> offers { get => modelLayer.offers; }
+        public ObservableCollection<Cart> carts { get => modelLayer.carts; }
+        public ObservableCollection<Order> orders { get => modelLayer.orders; }
 
         public MainWindowViewModel()
         {
-            modelLayer = new ModelLayer();
-            AddToCartCommand = new Actions(modelLayer.AddToCart);
-
-
-            modelLayer.RefreshOffers();
+            AddToCartCommand = new RelayCommand<Offer>(modelLayer.AddToCart);
+            MakeOrderFromCartCommand = new RelayCommand<Cart>(modelLayer.MakeOrderFromCart);
+            DeleteOneChoiceFromCart = new RelayCommand<Cart.Entry>(modelLayer.DeleteOneFromCart);
         }
-
-        public ObservableCollection<Offer> offers
-        {
-            get => modelLayer.offers;
-        }
-
     }
 }

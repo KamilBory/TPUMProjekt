@@ -160,6 +160,11 @@ namespace ShopLogic.Basic
                         if (!offerChoiceRepo.Delete(dbOfferChoiceId)) { throw new Exception("Failed to delete offer choice"); }
                         dbShopCart.offerChoiceIds.Remove(dbOfferChoiceId);
                         if (!shopCartRepo.Update(shopCartId, dbShopCart)) { throw new Exception("Failed to update shop cart"); }
+
+                        if (dbShopCart.offerChoiceIds.Count == 0)
+                        {
+                            if (!shopCartRepo.Delete(shopCartId)) { throw new Exception("Failed to delete shop cart"); }
+                        }
                     }
                     else
                     {

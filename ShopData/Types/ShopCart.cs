@@ -7,5 +7,14 @@ namespace ShopData.Types
     {
         public int clientId { get; set; }
         public HashSet<int> offerChoiceIds { get; set; }
+
+        public object Clone()
+        {
+            return new ShopCart
+            {
+                clientId = clientId,
+                offerChoiceIds = new HashSet<int>(offerChoiceIds)
+            };
+        }
     }
 }

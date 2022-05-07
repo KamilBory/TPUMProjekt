@@ -27,23 +27,35 @@ namespace ShopPresentation
 
         private void OrdersBtn_Click(object sender, RoutedEventArgs e)
         {
-            this.OfferPanel.Visibility = Visibility.Hidden;
-            this.CartPanel.Visibility = Visibility.Hidden;
-            this.OfferPanel.Visibility = Visibility.Visible;
+            OfferScrollViewer.Visibility = Visibility.Hidden;
+            CartScrollViewer.Visibility = Visibility.Hidden;
+            OrderScrollViewer.Visibility = Visibility.Visible;
+
+            OfferScrollViewer.IsEnabled = false;
+            CartScrollViewer.IsEnabled = false;
+            OrderScrollViewer.IsEnabled = true;
         }
 
         private void CartBtn_Click(object sender, RoutedEventArgs e)
         {
-            this.OfferPanel.Visibility = Visibility.Hidden;
-            this.CartPanel.Visibility = Visibility.Visible;
-            this.OfferPanel.Visibility = Visibility.Hidden;
+            OfferScrollViewer.Visibility = Visibility.Hidden;
+            CartScrollViewer.Visibility = Visibility.Visible;
+            OrderScrollViewer.Visibility = Visibility.Hidden;
+
+            OfferScrollViewer.IsEnabled = false;
+            CartScrollViewer.IsEnabled = true;
+            OrderScrollViewer.IsEnabled = false;
         }
 
         private void MainBtn_Click(object sender, RoutedEventArgs e)
         {
-            this.OfferPanel.Visibility = Visibility.Visible;
-            this.CartPanel.Visibility = Visibility.Hidden;
-            this.OfferPanel.Visibility = Visibility.Hidden;
+            OfferScrollViewer.Visibility = Visibility.Visible;
+            CartScrollViewer.Visibility = Visibility.Hidden;
+            OrderScrollViewer.Visibility = Visibility.Hidden;
+
+            OfferScrollViewer.IsEnabled = true;
+            CartScrollViewer.IsEnabled = false;
+            OrderScrollViewer.IsEnabled = false;
         }
     }
 }
