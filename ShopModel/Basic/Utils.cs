@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-using Logic = ShopLogic.Interface;
+using Logic = ShopClientLogic.Interface;
 using ShopModel.Types;
 using ShopModel.Interface;
 

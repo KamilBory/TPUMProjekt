@@ -5,8 +5,8 @@ using System.Collections.ObjectModel;
 using ShopModel.Types;
 using ShopModel.Interface;
 
-using Logic = ShopLogic.Interface;
-using LogicImpl = ShopLogic.Basic;
+using Logic = ShopClientLogic.Interface;
+using Impl = ShopClientLogic.Basic;
 
 namespace ShopModel.Basic
 {
@@ -33,7 +33,7 @@ namespace ShopModel.Basic
 
         private Model()
         {
-            logic = new LogicImpl.Logic();
+            logic = new Impl.Logic();
             clientLogic = logic.GetClientLogic(logic.RegisterClient("Jan", "Nowak", "xd"), "xd");
 
             offers = new ObservableCollection<IOffer>();
@@ -113,7 +113,8 @@ namespace ShopModel.Basic
                 clientLogic.CreateOrderFromShoppingCart(cart.id);
                 RefreshCarts();
                 RefreshOrders();
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(ex);
             }
@@ -125,7 +126,8 @@ namespace ShopModel.Basic
             {
                 clientLogic.DeleteOfferFromShoppingCart(cartEntry.parentCart, cartEntry.offerId, 1);
                 RefreshCarts();
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(ex);
             }

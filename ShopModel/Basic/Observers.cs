@@ -1,6 +1,6 @@
 ﻿using System;
 
-using Logic = ShopLogic.Interface;
+using Logic = ShopClientLogic.Interface;
 
 namespace ShopModel.Basic
 {
