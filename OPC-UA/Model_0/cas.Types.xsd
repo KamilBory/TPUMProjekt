@@ -7,4 +7,21 @@
 >
   <xs:import namespace="http://opcfoundation.org/UA/2008/02/Types.xsd" />
 
+  <xs:simpleType  name="OrderStateEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WAITING_0" />
+      <xs:enumeration value="PREPARED_1" />
+      <xs:enumeration value="SENT_2" />
+      <xs:enumeration value="FULFILLED_3" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="OrderStateEnum" type="tns:OrderStateEnum" />
+
+  <xs:complexType name="ListOfOrderStateEnum">
+    <xs:sequence>
+      <xs:element name="OrderStateEnum" type="tns:OrderStateEnum" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ListOfOrderStateEnum" type="tns:ListOfOrderStateEnum" nillable="true"></xs:element>
+
 </xs:schema>

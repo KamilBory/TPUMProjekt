@@ -12,4 +12,37 @@
       <Variable SymbolicName="q1:clientPassword" xmlns:q4="http://opcfoundation.org/UA/" DataType="q4:String" />
     </Children>
   </ObjectType>
+  <ObjectType xmlns:q5="http://cas.eu/UA/CommServer/" SymbolicName="q5:Offer">
+    <Children>
+      <Variable SymbolicName="q5:offerId" xmlns:q6="http://opcfoundation.org/UA/" DataType="q6:Int32" />
+      <Variable SymbolicName="q5:offerName" xmlns:q7="http://opcfoundation.org/UA/" DataType="q7:String" />
+      <Variable SymbolicName="q5:offerDescription" xmlns:q8="http://opcfoundation.org/UA/" DataType="q8:String" />
+      <Variable SymbolicName="q5:offerSellPrice" xmlns:q9="http://opcfoundation.org/UA/" DataType="q9:Int32" />
+      <Variable SymbolicName="q5:offerCount" xmlns:q10="http://opcfoundation.org/UA/" DataType="q10:Int32" />
+    </Children>
+  </ObjectType>
+  <ObjectType xmlns:q11="http://cas.eu/UA/CommServer/" SymbolicName="q11:OfferChoice">
+    <Children>
+      <Variable SymbolicName="q11:offerChoiceId" xmlns:q12="http://opcfoundation.org/UA/" DataType="q12:Int32" />
+      <Variable SymbolicName="q11:offerChoiceOfferId" xmlns:q13="http://opcfoundation.org/UA/" DataType="q13:Int32" />
+      <Variable SymbolicName="q11:offerChoiceCount" xmlns:q14="http://opcfoundation.org/UA/" DataType="q14:Int32" />
+    </Children>
+  </ObjectType>
+  <ObjectType xmlns:q15="http://cas.eu/UA/CommServer/" SymbolicName="q15:ShopCart" />
+  <DataType xmlns:q16="http://cas.eu/UA/CommServer/" SymbolicName="q16:OrderStateEnum" xmlns:q17="http://opcfoundation.org/UA/" BaseType="q17:Enumeration">
+    <Fields>
+      <Field Name="WAITING" Identifier="0" />
+      <Field Name="PREPARED" Identifier="1" />
+      <Field Name="SENT" Identifier="2" />
+      <Field Name="FULFILLED" Identifier="3" />
+    </Fields>
+  </DataType>
+  <ObjectType xmlns:q18="http://cas.eu/UA/CommServer/" SymbolicName="q18:Order">
+    <Children>
+      <Variable SymbolicName="q18:orderId" xmlns:q19="http://opcfoundation.org/UA/" DataType="q19:Int32" />
+      <Variable SymbolicName="q18:orderOfferChoiceIds" xmlns:q20="http://opcfoundation.org/UA/" DataType="q20:Int32" ValueRank="Array" />
+      <Variable SymbolicName="q18:orderCreationTime" xmlns:q21="http://opcfoundation.org/UA/" DataType="q21:DateTime" />
+      <Variable SymbolicName="q18:orderState" DataType="q18:OrderStateEnum" />
+    </Children>
+  </ObjectType>
 </ModelDesign>
