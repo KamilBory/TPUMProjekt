@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="OPCUAModelDesign.xslt"?>
+<ModelDesign xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" TargetNamespace="http://cas.eu/UA/CommServer/" xmlns="http://opcfoundation.org/UA/ModelDesign.xsd">
+  <Namespaces>
+    <Namespace Name="cas" Prefix="cas" InternalPrefix="cas" XmlNamespace="cas" XmlPrefix="cas">http://cas.eu/UA/CommServer/</Namespace>
+    <Namespace Name="OpcUa" Prefix="Opc.Ua" XmlNamespace="http://opcfoundation.org/UA/2008/02/Types.xsd">http://opcfoundation.org/UA/</Namespace>
+  </Namespaces>
+  <ObjectType xmlns:q1="http://cas.eu/UA/CommServer/" SymbolicName="q1:Client">
+    <Children>
+      <Variable SymbolicName="q1:clientId" xmlns:q2="http://opcfoundation.org/UA/" DataType="q2:Int32" />
+      <Variable SymbolicName="q1:clientName" xmlns:q3="http://opcfoundation.org/UA/" DataType="q3:String" />
+      <Variable SymbolicName="q1:clientPassword" xmlns:q4="http://opcfoundation.org/UA/" DataType="q4:String" />
+    </Children>
+  </ObjectType>
+</ModelDesign>

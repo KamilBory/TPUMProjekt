@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace ShopServerPresentation.Types
+namespace ShopCommon.Data
 {
-    [Serializable]
     public enum OrderState
     {
         WAITING,
@@ -13,16 +10,14 @@ namespace ShopServerPresentation.Types
         FULFILLED,
     }
 
-    [Serializable]
-    struct Client
+    public struct Client
     {
         public int id { get; set; }
         public string name { get; set; }
         public string surname { get; set; }
     }
 
-    [Serializable]
-    struct Offer
+    public struct Offer
     {
         public int id { get; set; }
         public string name { get; set; }
@@ -31,16 +26,14 @@ namespace ShopServerPresentation.Types
         public int sellPrice { get; set; }
     }
 
-    [Serializable]
-    struct OfferChoice
+    public struct OfferChoice
     {
         public int id { get; set; }
         public int offerId { get; set; }
         public int count { get; set; }
     }
 
-    [Serializable]
-    struct Order
+    public struct Order
     {
         public int id { get; set; }
         public int[] offerChoicesIds { get; set; }
@@ -48,8 +41,7 @@ namespace ShopServerPresentation.Types
         public OrderState state { get; set; }
     }
 
-    [Serializable]
-    struct ShopCart
+    public struct ShopCart
     {
         public int id { get; set; }
         public int[] offerChoiceIds { get; set; }

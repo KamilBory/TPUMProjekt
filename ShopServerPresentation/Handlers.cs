@@ -6,7 +6,8 @@ using System.Diagnostics;
 using LI = ShopLogic.Basic;
 using ShopLogic.Interface;
 
-using ShopServerPresentation.Calls;
+using ShopCommon.Calls;
+using ShopCommon.Data;
 
 namespace ShopServerPresentation
 {
@@ -58,21 +59,21 @@ namespace ShopServerPresentation
             throw new Exception("No fallback for client context");
         }
 
-        static T ReportReq<T>(T obj) where T : AbstractRequest
+        static T ReportReq<T>(T obj) where T : IMessage
         {
             var st = new StackTrace();
             var sf = st.GetFrame(1);
 
-            Console.WriteLine($"[Server] Req: {sf.GetMethod().Name} with: {obj.Serialize()}");
+            Console.WriteLine($"[Server] Req: {sf.GetMethod().Name} with: {JsonSerializer.Serialize(obj)}");
             return obj;
         }
 
-        static T ReportRes<T>(T obj) where T : AbstractResponse
+        static T ReportRes<T>(T obj) where T : IMessage
         {
             var st = new StackTrace();
             var sf = st.GetFrame(1);
 
-            Console.WriteLine($"[Server] Res: {sf.GetMethod().Name} with: {obj.Serialize()}");
+            Console.WriteLine($"[Server] Res: {sf.GetMethod().Name} with: {JsonSerializer.Serialize(obj)}");
             return obj;
         }
 
@@ -138,7 +139,7 @@ namespace ShopServerPresentation
             return ReportRes(new GetAllOffersResponse
             {
                 success = true,
-                offers = offers
+                offers = Converters.Convert(offers)
             });
         }
 
@@ -153,7 +154,7 @@ namespace ShopServerPresentation
             return ReportRes(new GetAllOrdersResponse
             {
                 success = true,
-                orders = orders
+                orders = Converters.Convert(orders)
             });
         }
 
@@ -168,7 +169,7 @@ namespace ShopServerPresentation
             return ReportRes(new GetOfferByIdResponse
             {
                 success = true,
-                offer = offer,
+                offer = Converters.Convert(offer),
             });
         }
 
@@ -183,7 +184,7 @@ namespace ShopServerPresentation
             return ReportRes(new GetOrderByIdResponse
             {
                 success = true,
-                order = order,
+                order = Converters.Convert(order),
             });
         }
 
@@ -198,7 +199,7 @@ namespace ShopServerPresentation
             return ReportRes(new GetShopCartByIdResponse
             {
                 success = true,
-                shopCart = shopCart,
+                shopCart = Converters.Convert(shopCart),
             });
         }
 
@@ -213,7 +214,7 @@ namespace ShopServerPresentation
             return ReportRes(new GetOfferChoiceByIdResponse
             {
                 success = true,
-                offerChoice = offerChoice,
+                offerChoice = Converters.Convert(offerChoice),
             });
         }
 
@@ -228,7 +229,7 @@ namespace ShopServerPresentation
             return ReportRes(new GetAllShopCartsResponse
             {
                 success = true,
-                shopCarts = shopCarts
+                shopCarts = Converters.Convert(shopCarts)
             });
         }
 
@@ -309,7 +310,7 @@ namespace ShopServerPresentation
 
             var order = clientLogic.CreateOrderFromShoppingCart(req.shopCartId);
 
-            return ReportRes(new CreateOrderFromShoppingCartResponse { order = order });
+            return ReportRes(new CreateOrderFromShoppingCartResponse { order = Converters.Convert(order) });
         }
 
         public static OfferUpdateSubscriptionResponse SubscribeForOfferUpdate(WebSocketConnection wsc, OfferUpdateSubscriptionRequest req)
@@ -348,13 +349,9 @@ namespace ShopServerPresentation
 
             public void OnNext(IOffer value)
             {
-                var res = new Response<OfferUpdateNotification>
+                var res = new OfferUpdateNotification
                 {
-                    type = RequestType.OFFER_OBSERVER,
-                    body = new OfferUpdateNotification
-                    {
-                        offer = value
-                    }
+                    offer = Converters.Convert(value)
                 };
 
                 try

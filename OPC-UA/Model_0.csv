@@ -1,0 +1,4 @@
+Client,1,ObjectType
+Client_clientId,3,Variable
+Client_clientName,4,Variable
+Client_clientPassword,5,Variable

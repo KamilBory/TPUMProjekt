@@ -23,7 +23,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShopIntegrationTests", "Sho
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShopServerPresentation", "ShopServerPresentation\ShopServerPresentation.csproj", "{F7C871FC-838C-4C60-A04B-551A370935B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopClientLogic", "ShopClientLogic\ShopClientLogic.csproj", "{5A6983E5-D420-47FA-A072-EB9314C380E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShopClientLogic", "ShopClientLogic\ShopClientLogic.csproj", "{5A6983E5-D420-47FA-A072-EB9314C380E4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShopCommon", "ShopCommon\ShopCommon.csproj", "{E4ADBAA5-B950-492A-A2A4-C680942EC398}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OPC-UA", "OPC-UA\OPC-UA.csproj", "{38A7C1F8-095A-4031-903B-8095F5391AFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopCommonTest", "ShopCommonTest\ShopCommonTest.csproj", "{CA0010AA-C425-4AC1-B2C0-DC1EBB6072BB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +81,18 @@ Global
 		{5A6983E5-D420-47FA-A072-EB9314C380E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A6983E5-D420-47FA-A072-EB9314C380E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A6983E5-D420-47FA-A072-EB9314C380E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4ADBAA5-B950-492A-A2A4-C680942EC398}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4ADBAA5-B950-492A-A2A4-C680942EC398}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4ADBAA5-B950-492A-A2A4-C680942EC398}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4ADBAA5-B950-492A-A2A4-C680942EC398}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38A7C1F8-095A-4031-903B-8095F5391AFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38A7C1F8-095A-4031-903B-8095F5391AFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38A7C1F8-095A-4031-903B-8095F5391AFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38A7C1F8-095A-4031-903B-8095F5391AFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA0010AA-C425-4AC1-B2C0-DC1EBB6072BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA0010AA-C425-4AC1-B2C0-DC1EBB6072BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA0010AA-C425-4AC1-B2C0-DC1EBB6072BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA0010AA-C425-4AC1-B2C0-DC1EBB6072BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

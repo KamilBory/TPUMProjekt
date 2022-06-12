@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
+using System;
 
 using ShopClientLogic.Interface;
 using ShopClientLogic.Types;
 using ShopClientData.Interface;
+
+using ShopCommon.Calls;
 
 namespace ShopClientLogic.Basic
 {
@@ -23,127 +25,103 @@ namespace ShopClientLogic.Basic
             _clientData = ctx;
 
             _clientData.RegisterObservedMessageCallback(OnOfferUpdate);
-            _clientData.RegisterObservedType((int)RequestType.OFFER_OBSERVER);
+            _clientData.RegisterObservedType((int)ShopCommon.Calls.Type.OFFER_OBSERVER);
         }
 
         public bool AddOfferToShoppingCart(int shopCartId, int offerId, int count)
         {
-            var req = new Request<AddOfferToShoppingCartRequest>
+            var req = new AddOfferToShoppingCartRequest
             {
-                type = RequestType.ADD_OFFER_TO_SHOPCART,
-                body = new AddOfferToShoppingCartRequest
-                {
-                    id = _currentClientId,
-                    password = _password,
-                    shopCartId = shopCartId,
-                    offerId = offerId,
-                    count = count,
-                },
+                id = _currentClientId,
+                password = _password,
+                shopCartId = shopCartId,
+                offerId = offerId,
+                count = count,
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<AddOfferToShoppingCartResponse>(resStr);
+            var res = Utils.Des<AddOfferToShoppingCartResponse>(resStr);
 
             return res.success;
         }
 
         public IOrder CreateOrderFromShoppingCart(int shopCartId)
         {
-            var req = new Request<CreateOrderFromShoppingCartRequest>
+            var req = new CreateOrderFromShoppingCartRequest
             {
-                type = RequestType.CREATE_ORDER_FROM_SHOPCART,
-                body = new CreateOrderFromShoppingCartRequest
-                {
-                    id = _currentClientId,
-                    password = _password,
-                    shopCartId = shopCartId
-                },
+                id = _currentClientId,
+                password = _password,
+                shopCartId = shopCartId
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<CreateOrderFromShoppingCartResponse>(resStr);
+            var res = Utils.Des<CreateOrderFromShoppingCartResponse>(resStr);
 
-            return res.order;
+            return Utils.Conv(res.order);
         }
 
         public int CreateShoppingCart()
         {
-            var req = new Request<CreateShoppingCartRequest>
+            var req = new CreateShoppingCartRequest
             {
-                type = RequestType.CREATE_SHOPCART,
-                body = new CreateShoppingCartRequest
-                {
-                    id = _currentClientId,
-                    password = _password,
-                },
+                id = _currentClientId,
+                password = _password,
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<CreateShoppingCartResponse>(resStr);
+            var res = Utils.Des<CreateShoppingCartResponse>(resStr);
 
             return res.id;
         }
 
         public bool DeleteOfferFromShoppingCart(int shopCartId, int offerId, int count)
         {
-            var req = new Request<DeleteOfferFromShoppingCartRequest>
+            var req = new DeleteOfferFromShoppingCartRequest
             {
-                type = RequestType.DELETE_OFFER_FROM_SHOPCART,
-                body = new DeleteOfferFromShoppingCartRequest
-                {
-                    id = _currentClientId,
-                    password = _password,
-                    shopCartId = shopCartId,
-                    offerId = offerId,
-                    count = count,
-                },
+                id = _currentClientId,
+                password = _password,
+                shopCartId = shopCartId,
+                offerId = offerId,
+                count = count,
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<DeleteOfferFromShoppingCartResponse>(resStr);
+            var res = Utils.Des<DeleteOfferFromShoppingCartResponse>(resStr);
 
             return res.success;
         }
 
         public bool DeleteShoppingCart(int shopCartId)
         {
-            var req = new Request<DeleteShoppingCartRequest>
+            var req = new DeleteShoppingCartRequest
             {
-                type = RequestType.DELETE_SHOPCART,
-                body = new DeleteShoppingCartRequest
-                {
-                    id = _currentClientId,
-                    password = _password,
-                    shopCartId = shopCartId
-                },
+                id = _currentClientId,
+                password = _password,
+                shopCartId = shopCartId
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<DeleteShoppingCartResponse>(resStr);
+            var res = Utils.Des<DeleteShoppingCartResponse>(resStr);
 
             return res.success;
         }
 
         public IClient Get()
         {
-            var req = new Request<GetClientRequest>
+            var req = new GetClientRequest
             {
-                type = RequestType.GET_CLIENT,
-                body = new GetClientRequest
-                {
-                    id = _currentClientId,
-                    password = _password,
-                },
+                id = _currentClientId,
+                password = _password,
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<GetClientResponse>(resStr);
+            var res = Utils.Des<GetClientResponse>(resStr);
 
             return new Client
             {
@@ -155,158 +133,126 @@ namespace ShopClientLogic.Basic
 
         public IOffer[] GetAllOffers()
         {
-            var req = new Request<GetAllOffersRequest>
+            var req = new GetAllOffersRequest
             {
-                type = RequestType.GET_ALL_OFFERS,
-                body = new GetAllOffersRequest
-                {
-                    id = _currentClientId,
-                    password = _password,
-                }
+                id = _currentClientId,
+                password = _password,
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<GetAllOffersResponse>(resStr);
+            var res = Utils.Des<GetAllOffersResponse>(resStr);
 
-            return res.offers;
+            return Utils.Conv(res.offers);
         }
 
         public IOrder[] GetAllOrders()
         {
-            var req = new Request<GetAllOrdersRequest>
+            var req = new GetAllOrdersRequest
             {
-                type = RequestType.GET_ALL_ORDERS,
-                body = new GetAllOrdersRequest
-                {
-                    id = _currentClientId,
-                    password = _password,
-                }
+                id = _currentClientId,
+                password = _password,
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<GetAllOrdersResponse>(resStr);
+            var res = Utils.Des<GetAllOrdersResponse>(resStr);
 
-            return res.orders;
+            return Utils.Conv(res.orders);
         }
 
         public IShopCart[] GetAllShopCarts()
         {
-            var req = new Request<GetAllShopCartsRequest>
+            var req = new GetAllShopCartsRequest
             {
-                type = RequestType.GET_ALL_SHOPCARTS,
-                body = new GetAllShopCartsRequest
-                {
-                    id = _currentClientId,
-                    password = _password,
-                }
+                id = _currentClientId,
+                password = _password,
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<GetAllShopCartsResponse>(resStr);
+            var res = Utils.Des<GetAllShopCartsResponse>(resStr);
 
-            return res.shopCarts;
+            return Utils.Conv(res.shopCarts);
         }
 
         public IOffer GetOfferById(int offerId)
         {
-            var req = new Request<GetOfferByIdRequest>
+            var req = new GetOfferByIdRequest
             {
-                type = RequestType.GET_OFFER_BY_ID,
-                body = new GetOfferByIdRequest
-                {
-                    id = _currentClientId,
-                    password = _password,
-                    offerId = offerId,
-                }
+                id = _currentClientId,
+                password = _password,
+                offerId = offerId,
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<GetOfferByIdResponse>(resStr);
+            var res = Utils.Des<GetOfferByIdResponse>(resStr);
 
-            return res.offer;
+            return Utils.Conv(res.offer);
         }
 
         public IOfferChoice GetOfferChoiceById(int offerChoiceId)
         {
-            var req = new Request<GetOfferChoiceByIdRequest>
+            var req = new GetOfferChoiceByIdRequest
             {
-                type = RequestType.GET_OFFER_CHOICE_BY_ID,
-                body = new GetOfferChoiceByIdRequest
-                {
-                    id = _currentClientId,
-                    password = _password,
-                    choiceId = offerChoiceId,
-                }
+                id = _currentClientId,
+                password = _password,
+                choiceId = offerChoiceId,
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<GetOfferChoiceByIdResponse>(resStr);
+            var res = Utils.Des<GetOfferChoiceByIdResponse>(resStr);
 
-            return res.offerChoice;
+            return Utils.Conv(res.offerChoice);
         }
 
         public IOrder GetOrderById(int orderId)
         {
-            var req = new Request<GetOrderByIdRequest>
+            var req = new GetOrderByIdRequest
             {
-                type = RequestType.GET_ORDER_BY_ID,
-                body = new GetOrderByIdRequest
-                {
-                    id = _currentClientId,
-                    password = _password,
-                    orderId = orderId,
-                }
+                id = _currentClientId,
+                password = _password,
+                orderId = orderId,
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<GetOrderByIdResponse>(resStr);
+            var res = Utils.Des<GetOrderByIdResponse>(resStr);
 
-            return res.order;
+            return Utils.Conv(res.order);
         }
 
         public IShopCart GetShopCartById(int shopCartId)
         {
-            var req = new Request<GetShopCartByIdRequest>
+            var req = new GetShopCartByIdRequest
             {
-                type = RequestType.GET_SHOPCART_BY_ID,
-                body = new GetShopCartByIdRequest
-                {
-                    id = _currentClientId,
-                    password = _password,
-                    shopCartId = shopCartId,
-                }
+                id = _currentClientId,
+                password = _password,
+                shopCartId = shopCartId,
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<GetShopCartByIdResponse>(resStr);
+            var res = Utils.Des<GetShopCartByIdResponse>(resStr);
 
-            return res.shopCart;
+            return Utils.Conv(res.shopCart);
         }
 
         public bool Update(IClient client)
         {
-            var req = new Request<UpdateClientRequest>
+            var req = new UpdateClientRequest
             {
-                type = RequestType.UPDATE_CLIENT,
-                body = new UpdateClientRequest
-                {
-                    id = client.id,
-                    name = client.name,
-                    surname = client.surname,
-                    password = _password,
-                }
+                id = client.id,
+                name = client.name,
+                surname = client.surname,
+                password = _password,
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<UpdateClientResponse>(resStr);
+            var res = Utils.Des<UpdateClientResponse>(resStr);
 
             return res.success;
         }
@@ -315,7 +261,7 @@ namespace ShopClientLogic.Basic
 
         public void OnOfferUpdate(string message)
         {
-            UpdateOffer(Serialization.DeserializeComplexResponse<OfferUpdateNotification>(message).offer);
+            UpdateOffer(Utils.Conv(Utils.Des<OfferUpdateNotification>(message).offer));
         }
 
         internal class Unsubscriber<IOffer> : IDisposable
@@ -343,19 +289,15 @@ namespace ShopClientLogic.Basic
 
         public IDisposable SubscribeForOfferUpdate(IObserver<IOffer> observer)
         {
-            var req = new Request<OfferUpdateSubscriptionRequest>
+            var req = new OfferUpdateSubscriptionRequest
             {
-                type = RequestType.SUBSCRIBE_FOR_OFFER_UPDATE,
-                body = new OfferUpdateSubscriptionRequest
-                {
-                    id = _currentClientId,
-                    password = _password,
-                }
+                id = _currentClientId,
+                password = _password,
             };
 
-            var resStr = _clientData.Interact(Serialization.Serialize(req));
+            var resStr = _clientData.Interact(Utils.Ser(req));
 
-            var res = Serialization.DeserializeResponse<OfferUpdateSubscriptionResponse>(resStr);
+            var res = Utils.Des<OfferUpdateSubscriptionResponse>(resStr);
 
             if (!res.success)
             {

@@ -6,6 +6,8 @@ using ShopClientData;
 using ShopClientLogic.Interface;
 using ShopClientLogic.Types;
 
+using ShopCommon.Calls;
+
 namespace ShopClientLogic.Basic
 {
     public class Logic : ILogic
@@ -21,24 +23,21 @@ namespace ShopClientLogic.Basic
 
         public int RegisterClient(string name, string surname, string password)
         {
-            var req = new Request<RegisterClientCall>
+            var req = new RegisterClientRequest
             {
-                type = RequestType.REGISTER_CLIENT,
-                body = new RegisterClientCall
-                {
-                    name = name,
-                    surname = surname,
-                    password = password
-                },
+                name = name,
+                surname = surname,
+                password = password
             };
 
-            var resStr = clientData.Interact(Serialization.Serialize(req));
-            var res = Serialization.DeserializeResponse<RegisterClientResponse>(resStr);
+            var resStr = clientData.Interact(Utils.Ser(req));
+            var res = Utils.Des<RegisterClientResponse>(resStr);
 
             return res.id;
         }
 
-        public void Shutdown() {
+        public void Shutdown()
+        {
             //clientData.Interact("SHUTDOWN");
         }
 

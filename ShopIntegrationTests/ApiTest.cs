@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using SSP = ShopServerPresentation;
 using SSC = ShopClientData;
+using ShopCommon.Calls;
 
 namespace ShopIntegrationTests
 {
@@ -31,28 +32,24 @@ namespace ShopIntegrationTests
             wsc.SendAsync(JsonSerializer.Serialize(obj)).Wait();
         }
 
-        public T GetResponse<T>() where T : SSP.Calls.AbstractResponse
+        public T GetResponse<T>()
         {
             clientEvent.WaitOne();
             Assert.AreEqual(clientQueue.Count, 1);
-            return SSP.Serialization.DeserializeResponse<T>(clientQueue.Dequeue());
+            return JsonSerializer.Deserialize<T>(clientQueue.Dequeue());
         }
 
         [TestMethod]
         public void RegisterClient()
         {
-            SendAsync(new SSP.Calls.Request<SSP.Calls.RegisterClientRequest>
+            SendAsync(new RegisterClientRequest
             {
-                type = SSP.Calls.RequestType.REGISTER_CLIENT,
-                body = new SSP.Calls.RegisterClientRequest
-                {
                     name = "name",
                     surname = "surname",
                     password = "password",
-                }
             });
 
-            var res = GetResponse<SSP.Calls.RegisterClientResponse>();
+            var res = GetResponse<RegisterClientResponse>();
 
             Assert.AreEqual(res.id, 1);
         }

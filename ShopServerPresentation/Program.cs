@@ -35,28 +35,19 @@ namespace ShopServerPresentation
                 return;
             }
 
-            var deserializedCall = Serialization.Deserialize(message);
-
-            if (deserializedCall == null)
-            {
-                Console.WriteLine($"[Server] Call unimplemented: {message}");
-                await wsc.SendAsync("");
-                return;
-            }
-
-            var res = deserializedCall(wsc);
+            var res = Serialization.ContextCall(wsc, message);
 
             Console.WriteLine($"[Server] Responding: {res}");
 
             await wsc.SendAsync(res);
         }
 
-        static void OnClose(WebSocketConnection wsc)
+        static void OnClose(WebSocketConnection _)
         {
             Console.WriteLine("[Server] Server close");
         }
 
-        static void OnError(WebSocketConnection wsc)
+        static void OnError(WebSocketConnection _)
         {
             Console.WriteLine("[Server] Server error");
         }
